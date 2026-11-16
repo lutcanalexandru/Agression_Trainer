@@ -13,42 +13,42 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ServerMessage } from "@ar-training/shared";
-import { useCapture }        from "./hooks/useCapture.ts";
-import { useSession }        from "./hooks/useSession.ts";
-import { CapturePanel }      from "./components/CapturePanel.tsx";
-import { SessionPanel }      from "./components/SessionPanel.tsx";
-import { DataColumn }        from "./components/DataColumn.tsx";
-import { ClipPreviewPanel }  from "./components/ClipPreviewPanel.tsx";
-import type { CapturePanelHandles }    from "./components/CapturePanel.tsx";
-import type { LandmarkOverlayHandle }  from "./components/LandmarkOverlay.tsx";
-import type { MfccSpectrogramHandle }  from "./components/MfccSpectrogram.tsx";
-import type { CaptureStatsHandle }     from "./components/CaptureStats.tsx";
+import { useCapture } from "./hooks/useCapture.ts";
+import { useSession } from "./hooks/useSession.ts";
+import { CapturePanel } from "./components/CapturePanel.tsx";
+import { SessionPanel } from "./components/SessionPanel.tsx";
+import { DataColumn } from "./components/DataColumn.tsx";
+import { ClipPreviewPanel } from "./components/ClipPreviewPanel.tsx";
+import type { CapturePanelHandles } from "./components/CapturePanel.tsx";
+import type { LandmarkOverlayHandle } from "./components/LandmarkOverlay.tsx";
+import type { MfccSpectrogramHandle } from "./components/MfccSpectrogram.tsx";
+import type { CaptureStatsHandle } from "./components/CaptureStats.tsx";
 
 export function App() {
     const { capture, ready, videoRef } = useCapture();
 
     // ── Capture state (changes at most once per user interaction) ─────────────
-    const [capturing,    setCapturing]    = useState(false);
+    const [capturing, setCapturing] = useState(false);
     const [captureError, setCaptureError] = useState<string | null>(null);
-    const [showOverlay,  setShowOverlay]  = useState(true);
-    const [stream,       setStream]       = useState<MediaStream | null>(null);
+    const [showOverlay, setShowOverlay] = useState(true);
+    const [stream, setStream] = useState<MediaStream | null>(null);
 
     // ── Imperative handles for high-frequency canvas components ───────────────
-    const overlayRef:     React.RefObject<LandmarkOverlayHandle | null> = useRef(null);
+    const overlayRef: React.RefObject<LandmarkOverlayHandle | null> = useRef(null);
     const spectrogramRef: React.RefObject<MfccSpectrogramHandle | null> = useRef(null);
-    const statsRef:       React.RefObject<CaptureStatsHandle | null>    = useRef(null);
+    const statsRef: React.RefObject<CaptureStatsHandle | null> = useRef(null);
 
     const capturePanelHandles: CapturePanelHandles = {
-        overlay:     overlayRef,
+        overlay: overlayRef,
         spectrogram: spectrogramRef,
-        stats:       statsRef,
+        stats: statsRef,
     };
 
     // ── Capture consumer loops ────────────────────────────────────────────────
     // Track frame/chunk counts in refs so both loops can read each other's
     // count without stale closures and without any React setState in the hot path.
-    const frameCountRef  = useRef(0);
-    const chunkCountRef  = useRef(0);
+    const frameCountRef = useRef(0);
+    const chunkCountRef = useRef(0);
     // Ref mirror of showOverlay so the frame loop responds to toggle changes
     // without needing to restart when the boolean flips.
     const showOverlayRef = useRef(showOverlay);
@@ -68,7 +68,7 @@ export function App() {
                 if (cancelled) break;
                 frameCountRef.current++;
                 if (showOverlayRef.current) overlayRef.current?.draw(f);
-                else                        overlayRef.current?.clear();
+                else overlayRef.current?.clear();
                 const fps = f.frame_id > 0
                     ? Math.round(frameCountRef.current / f.timestamp)
                     : 0;
@@ -117,21 +117,21 @@ export function App() {
     }, [videoRef]);
 
     // ── Session ───────────────────────────────────────────────────────────────
-    type ClipSelectedMsg    = Extract<ServerMessage, { type: "clip_selected" }>;
-    type ScenariosListMsg   = Extract<ServerMessage, { type: "scenarios_list" }>;
+    type ClipSelectedMsg = Extract<ServerMessage, { type: "clip_selected" }>;
+    type ScenariosListMsg = Extract<ServerMessage, { type: "scenarios_list" }>;
     type SessionCompleteMsg = Extract<ServerMessage, { type: "session_complete" }>;
 
-    const [lastClipSelected,    setLastClipSelected]    = useState<ClipSelectedMsg | null>(null);
-    const [lastScenariosList,   setLastScenariosList]   = useState<ScenariosListMsg | null>(null);
+    const [lastClipSelected, setLastClipSelected] = useState<ClipSelectedMsg | null>(null);
+    const [lastScenariosList, setLastScenariosList] = useState<ScenariosListMsg | null>(null);
     const [lastSessionComplete, setLastSessionComplete] = useState<SessionCompleteMsg | null>(null);
-    const [feedbackTokens,      setFeedbackTokens]      = useState("");
-    const [errors,              setErrors]              = useState<string[]>([]);
+    const [feedbackTokens, setFeedbackTokens] = useState("");
+    const [errors, setErrors] = useState<string[]>([]);
     const errRef = useRef<string[]>([]);
 
     const onMessage = useCallback((msg: ServerMessage) => {
         switch (msg.type) {
-            case "scenarios_list":   setLastScenariosList(msg);   break;
-            case "clip_selected":    setLastClipSelected(msg);    break;
+            case "scenarios_list": setLastScenariosList(msg); break;
+            case "clip_selected": setLastClipSelected(msg); break;
             case "session_complete":
                 setLastSessionComplete(msg);
                 setFeedbackTokens("");
@@ -200,8 +200,8 @@ export function App() {
                     <span style={{ ...st.badge, background: stateColor[state] ?? "#555" }}>{state}</span>
                     {isAdmin && <span style={st.adminBadge}>ADMIN</span>}
                     <Kv k="Session" v={sessionId ?? "—"} />
-                    <Kv k="Queue"   v={queuePos !== null ? String(queuePos) : "—"} />
-                    <Kv k="Score"   v={clipScore !== null ? clipScore.toFixed(3) : "—"} />
+                    <Kv k="Queue" v={queuePos !== null ? String(queuePos) : "—"} />
+                    <Kv k="Score" v={clipScore !== null ? clipScore.toFixed(3) : "—"} />
                     {feedbackUnavailable && <span style={st.warnBadge}>feedback unavailable</span>}
                 </div>
             </div>
@@ -280,16 +280,16 @@ function Kv({ k, v }: { k: string; v: string }) {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const st = {
-    root:        { fontFamily: "monospace", background: "#1a1a1a", color: "#e0e0e0", minHeight: "100vh", boxSizing: "border-box" as const },
-    statusBar:   { display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" as const, gap: "12px", padding: "8px 16px", background: "#111", borderBottom: "1px solid #333" },
-    appTitle:    { fontSize: "12px", fontWeight: "bold" as const, color: "#666", textTransform: "uppercase" as const, letterSpacing: "0.08em" },
+    root: { fontFamily: "monospace", background: "#1a1a1a", color: "#e0e0e0", minHeight: "100vh", boxSizing: "border-box" as const },
+    statusBar: { display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap" as const, gap: "12px", padding: "8px 16px", background: "#111", borderBottom: "1px solid #333" },
+    appTitle: { fontSize: "12px", fontWeight: "bold" as const, color: "#666", textTransform: "uppercase" as const, letterSpacing: "0.08em" },
     statusItems: { display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" as const },
-    columns:     { display: "grid", gridTemplateColumns: "660px 1fr", minHeight: "calc(100vh - 37px)" },
-    leftCol:     { padding: "16px", borderRight: "1px solid #2a2a2a", display: "flex", flexDirection: "column" as const, gap: "12px" },
-    badge:       { display: "inline-block", padding: "2px 10px", borderRadius: "4px", fontSize: "11px", fontWeight: "bold" as const, color: "#fff", textTransform: "uppercase" as const, letterSpacing: "0.05em" },
-    adminBadge:  { display: "inline-block", padding: "2px 10px", borderRadius: "4px", fontSize: "11px", fontWeight: "bold" as const, background: "#3d2800", color: "#f5a623", border: "1px solid #7a5400", letterSpacing: "0.05em" },
-    warnBadge:   { display: "inline-block", padding: "2px 10px", borderRadius: "4px", fontSize: "11px", background: "#7f1d1d", color: "#fca5a5" },
-    kv:          { fontSize: "11px", display: "inline-flex", gap: "4px" },
-    kvKey:       { color: "#666" },
-    kvVal:       { color: "#e0e0e0" },
+    columns: { display: "grid", gridTemplateColumns: "660px 1fr", minHeight: "calc(100vh - 37px)" },
+    leftCol: { padding: "16px", borderRight: "1px solid #2a2a2a", display: "flex", flexDirection: "column" as const, gap: "12px" },
+    badge: { display: "inline-block", padding: "2px 10px", borderRadius: "4px", fontSize: "11px", fontWeight: "bold" as const, color: "#fff", textTransform: "uppercase" as const, letterSpacing: "0.05em" },
+    adminBadge: { display: "inline-block", padding: "2px 10px", borderRadius: "4px", fontSize: "11px", fontWeight: "bold" as const, background: "#3d2800", color: "#f5a623", border: "1px solid #7a5400", letterSpacing: "0.05em" },
+    warnBadge: { display: "inline-block", padding: "2px 10px", borderRadius: "4px", fontSize: "11px", background: "#7f1d1d", color: "#fca5a5" },
+    kv: { fontSize: "11px", display: "inline-flex", gap: "4px" },
+    kvKey: { color: "#666" },
+    kvVal: { color: "#e0e0e0" },
 } as const;
