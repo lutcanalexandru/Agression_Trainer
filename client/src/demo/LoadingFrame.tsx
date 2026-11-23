@@ -1,0 +1,70 @@
+// =============================================================================
+// LoadingFrame — the console "LOADING SYSTEM" frame (Figma "Loading Screen A").
+// The progress bar is stepped by useProgress() in hooks.ts
+// (Figma frames A1…A5 show 2, 5, 9, 13 and 17 blocks).
+// =============================================================================
+
+import type { ReactNode } from "react";
+import { C } from "./theme.ts";
+import { abs, text } from "./layout.ts";
+import { Screen } from "./ui.tsx";
+import cornerTl from "./assets/figma/corner-tl.svg";
+import cornerTr from "./assets/figma/corner-tr.svg";
+import cornerBl from "./assets/figma/corner-bl.svg";
+import cornerBr from "./assets/figma/corner-br.svg";
+import barLeft from "./assets/figma/bar-left.svg";
+import barMiddle from "./assets/figma/bar-middle.svg";
+import barRight from "./assets/figma/bar-right.svg";
+
+const MAX_BLOCKS = 17;
+
+const BLOCK_X = 549;
+const BLOCK_STRIDE = 20.98;
+
+interface LoadingFrameProps {
+    /** Centre title, e.g. "LOADING SYSTEM". Omit to show only `children`. */
+    label?: string;
+    /** Number of progress blocks (0–17). */
+    blocks?: number;
+    /** Left edge of the progress bar (Results Loading A5 starts at 544). */
+    blockX?: number;
+    children?: ReactNode;
+}
+
+export function LoadingFrame({ label, blocks = 0, blockX = BLOCK_X, children }: LoadingFrameProps) {
+    return (
+        <Screen>
+            {/* Outer 3 px frame and inner console box */}
+            <div style={{ ...abs(0, 0, 1439, 1020), border: `3px solid ${C.cream80}` }} />
+            <div style={{ ...abs(74, 113, 1290, 852), border: `2px solid ${C.cream80}` }} />
+
+            {/* Corner brackets */}
+            <img src={cornerTl} alt="" width={116} height={115} style={abs(119, 153, 116, 115)} />
+            <div style={{ ...abs(119, 801.37, 116.279, 115.151), display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <img src={cornerBl} alt="" width={115} height={116} style={{ width: 115.151, height: 116.279, transform: "rotate(-90deg)", flex: "none" }} />
+            </div>
+            <div style={{ ...abs(1203.65, 153, 115.349, 115.367), display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <img src={cornerTr} alt="" width={115} height={115} style={{ width: 115.367, height: 115.349, transform: "rotate(90deg)", flex: "none" }} />
+            </div>
+            <div style={{ ...abs(1203.65, 801.37, 115.351, 115.151), display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <img src={cornerBr} alt="" width={115} height={115} style={{ width: 115.351, height: 115.151, transform: "rotate(180deg)", flex: "none" }} />
+            </div>
+
+            {/* Red top bars */}
+            <img src={barLeft} alt="" width={62} height={42} style={abs(74, 34, 62, 42)} />
+            <img src={barMiddle} alt="" width={1167} height={42} style={abs(136, 34, 1167, 42)} />
+            <img src={barRight} alt="" width={61} height={42} style={abs(1303, 34, 61, 42)} />
+
+            {label && (
+                <p style={{ ...abs(721 - 300, 519, 600, 40), ...text(36, C.white), textAlign: "center" }}>{label}</p>
+            )}
+
+            {Array.from({ length: Math.min(blocks, MAX_BLOCKS) }, (_, i) => (
+                <div key={i} style={{ ...abs(blockX + i * BLOCK_STRIDE, 586, 14.349, 31.919), background: C.cream80 }} />
+            ))}
+
+            {children}
+        </Screen>
+    );
+}
+
