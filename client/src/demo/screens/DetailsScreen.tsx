@@ -106,7 +106,8 @@ export function DetailsScreen({ index, onSelect, onBack, showTryAgain, onTryAgai
             <Box x={730} y={773} w={710} h={201} border={2} color={C.cream60} />
             <Box x={18} y={786} w={363} h={179} border={2} color={C.cream60} />
             <div style={{ ...abs(24, 797, 352, 163), overflow: "hidden" }}>
-                <img src={detailsConsole} alt="" style={{ position: "absolute", left: 0, top: "-62.13%", width: "165.29%", height: "196.45%" }} />
+                {/* Same crop as Figma, in exact pixels so the image never distorts */}
+                <img src={detailsConsole} alt="" style={{ position: "absolute", left: 0, top: -101.27, width: 581.82, height: 320.21 }} />
             </div>
             <Box x={389} y={786} w={324} h={179} border={2} color={C.cream60} style={{ overflow: "hidden" }}>
                 <img src={detailsSignal} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />

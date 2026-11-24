@@ -15,7 +15,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { C } from "../theme.ts";
-import { abs, text } from "../layout.ts";
+import { abs, sxOff, text } from "../layout.ts";
 import { AppHeader, Box, ConsoleButton, Grid, Label, Marker, Screen, SessionFooter } from "../ui.tsx";
 import recPlay from "../assets/figma/rec-play.svg";
 import recBracket from "../assets/figma/rec-bracket.png";
@@ -152,22 +152,27 @@ export function RecordScreen({ stream, responseNumber, onSubmit }: RecordScreenP
                 ) : stream ? (
                     <video ref={liveEl} muted playsInline autoPlay style={mediaStyle} />
                 ) : (
-                    <img src={recCamera} alt="" width={124} height={124} style={abs(356, 168, 124, 124)} />
+                    <img src={recCamera} alt="" width={124} height={124}
+                         style={{ position: "absolute", left: "calc(50% - 62px)", top: 168, width: 124, height: 124 }} />
                 )}
             </Box>
 
             {/* Corner brackets */}
-            <img src={recBracket} alt="" style={{ ...abs(130.4, 257, 50.2, 50.2), opacity: 0.7 }} />
-            <img src={recBracket} alt="" style={{ ...abs(879.4, 257, 50.2, 50.2), opacity: 0.7, transform: "rotate(90deg)" }} />
-            <img src={recBracket} alt="" style={{ ...abs(130.4, 658, 50.2, 50.2), opacity: 0.7, transform: "rotate(-90deg)" }} />
-            <img src={recBracket} alt="" style={{ ...abs(879.4, 658, 50.2, 50.2), opacity: 0.7, transform: "rotate(180deg)" }} />
+            {/* Corner brackets — exact size, anchored to the inner camera frame (x 107 → 944) */}
+            <img src={recBracket} alt="" style={{ ...bracket(sxOff(107, 23.4), 257), opacity: 0.7 }} />
+            <img src={recBracket} alt="" style={{ ...bracket(sxOff(944, -64.6), 257), opacity: 0.7, transform: "rotate(90deg)" }} />
+            <img src={recBracket} alt="" style={{ ...bracket(sxOff(107, 23.4), 658), opacity: 0.7, transform: "rotate(-90deg)" }} />
+            <img src={recBracket} alt="" style={{ ...bracket(sxOff(944, -64.6), 658), opacity: 0.7, transform: "rotate(180deg)" }} />
 
-            {/* Camera status */}
+            {/* Camera status (anchored to the inner frame's left edge) */}
             <img src={recStatusDot} alt="" width={23} height={23}
-                 style={{ ...abs(147, 272, 23, 23), animation: recording ? "at-blink 1s step-end infinite" : undefined, opacity: recording ? 1 : 0.45 }} />
-            <Label x={182} y={272} size={20} color={C.cream80}>
+                 style={{
+                     position: "absolute", left: sxOff(107, 40), top: 272, width: 23, height: 23,
+                     animation: recording ? "at-blink 1s step-end infinite" : undefined, opacity: recording ? 1 : 0.45,
+                 }} />
+            <p style={{ position: "absolute", left: sxOff(107, 75), top: 272, ...text(20, C.cream80) }}>
                 {recorderUnavailable ? "REC · UNAVAILABLE" : `REC · ${formatTime(seconds)}`}
-            </Label>
+            </p>
 
             {/* Device checks */}
             <Box x={33} y={811} w={994} h={65} border={2} color={C.cream80} bg={C.bg} />
@@ -251,6 +256,10 @@ export function RecordScreen({ stream, responseNumber, onSubmit }: RecordScreenP
         </Screen>
     );
 }
+
+const bracket = (left: string, top: number): React.CSSProperties => ({
+    position: "absolute", left, top, width: 50.2, height: 50.2,
+});
 
 const mediaStyle: React.CSSProperties = {
     width: "100%", height: "100%", objectFit: "cover", display: "block", transform: "scaleX(-1)",

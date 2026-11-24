@@ -5,7 +5,7 @@
 
 import { useState } from "react";
 import { C } from "../theme.ts";
-import { abs, text } from "../layout.ts";
+import { abs, sxOff, text } from "../layout.ts";
 import { useTypewriter } from "../hooks.ts";
 import { AppHeader, Box, ConsoleButton, Cursor, Grid, Marker, Screen, SessionFooter } from "../ui.tsx";
 import homeFace from "../assets/figma/home-face.png";
@@ -27,10 +27,12 @@ const STEPS = [
 interface HomeScreenProps {
     /** Called when the user accepts camera access in the popup. */
     onAccept: () => void;
+    /** Open with the camera popup already showing (used by the page preview). */
+    initialPopupOpen?: boolean;
 }
 
-export function HomeScreen({ onAccept }: HomeScreenProps) {
-    const [popupOpen, setPopupOpen] = useState(false);
+export function HomeScreen({ onAccept, initialPopupOpen = false }: HomeScreenProps) {
+    const [popupOpen, setPopupOpen] = useState(initialPopupOpen);
     const intro = useTypewriter(INTRO_TEXT, 22);
 
     return (
@@ -55,7 +57,7 @@ export function HomeScreen({ onAccept }: HomeScreenProps) {
 
             {/* Encounter preview: pixel face under the grid */}
             <div style={{ ...abs(800, 143, 560, 410), overflow: "hidden" }}>
-                <img src={homeFace} alt="" style={{ ...abs(137, -4, 277, 410), objectFit: "cover" }} />
+                <img src={homeFace} alt="" style={{ position: "absolute", left: "calc(50% - 138.5px)", top: -4, width: 277, height: 410, objectFit: "cover" }} />
             </div>
             <Grid x={800} y={143} w={560} h={410} cellW={28} cellH={29.228} line={1} color={C.grid} />
             <Box x={800} y={143} w={560} h={410} border={2} color={C.cream90} />
@@ -101,10 +103,12 @@ function CameraPopup({ onCancel, onAccept }: { onCancel: () => void; onAccept: (
     return (
         <div role="dialog" aria-modal="true" style={{ ...abs(X, Y, 1073, 448), background: C.bg, border: `3px solid ${C.cream80}` }}>
             {/* Children are positioned inside the 3 px border, so subtract it from the Figma offsets. */}
-            <img src={popupBarLeft} alt="" width={44} height={35} style={abs(74, 26, 44, 34.833)} />
-            <img src={popupBarMiddle} alt="" width={831} height={35} style={abs(118, 26, 831, 35)} />
-            <img src={popupBarRight} alt="" width={44} height={35} style={abs(949, 26, 44, 35)} />
-            <img src={popupWarning} alt="" style={{ ...abs(469, 61, 130, 114), objectFit: "cover", opacity: 0.8 }} />
+            {/* Red bar: end pieces keep their shape, the middle stretches */}
+            <img src={popupBarLeft} alt="" width={44} height={35} style={{ position: "absolute", left: sxOff(74, 0), top: 26, width: 44, height: 34.833 }} />
+            <img src={popupBarMiddle} alt="" width={831} height={35}
+                 style={{ position: "absolute", left: sxOff(74, 44), top: 26, width: "calc(919px * var(--kx, 1) - 88px)", height: 35 }} />
+            <img src={popupBarRight} alt="" width={44} height={35} style={{ position: "absolute", left: sxOff(993, -44), top: 26, width: 44, height: 35 }} />
+            <img src={popupWarning} alt="" style={{ position: "absolute", left: "calc(50% - 65px)", top: 61, width: 130, height: 114, objectFit: "contain", opacity: 0.8 }} />
             <p style={{ ...abs(536.5 - 3 - 459.5, 183, 919, 107), ...text(32, C.white), whiteSpace: "normal", textAlign: "center" }}>
                 The following sequence requires access to your camera to record your response.
                 <br />Do you accept?

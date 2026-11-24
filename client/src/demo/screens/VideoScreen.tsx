@@ -20,7 +20,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ClipData } from "@ar-training/shared";
 import { C } from "../theme.ts";
-import { abs, text } from "../layout.ts";
+import { abs, fitImage, text } from "../layout.ts";
 import { useTypewriter } from "../hooks.ts";
 import { AppHeader, Box, ConsoleButton, Cursor, Grid, Label, Marker, Screen, SessionFooter } from "../ui.tsx";
 import { getFaceMedia } from "../faceVideos.ts";
@@ -74,7 +74,10 @@ export function VideoScreen({ clip, videoNumber, onRecord }: VideoScreenProps) {
                 onClick={() => setRewinding(true)}
                 style={{ ...abs(L.rewind.x, L.rewind.y, 137, 83), background: C.bg, border: `2px solid ${C.cream80}`, padding: 0 }}
             >
-                <img src={rewindIcon} alt="" style={{ ...abs(24, 3, 74, 74), objectFit: "cover", opacity: 0.8, transform: "scaleX(-1)" }} />
+                <img src={rewindIcon} alt="" style={{
+                    position: "absolute", left: "calc(50% - 37px)", top: 3, width: 74, height: 74,
+                    objectFit: "cover", opacity: 0.8, transform: "scaleX(-1)",
+                }} />
             </button>
 
             {/* Transcript */}
@@ -279,10 +282,10 @@ function HudPanels() {
             <Box x={730} y={88} w={710} h={886} border={2} color={C.cream70} />
 
             <Box x={750} y={131} w={353} h={273} border={1} color={C.cream} style={{ overflow: "hidden" }}>
-                <img src={hudTerrain} alt="" style={{ position: "absolute", left: "-27.13%", top: "0.11%", width: "151.47%", height: "108.57%", opacity: 0.92 }} />
+                <img src={hudTerrain} alt="" style={{ ...fitImage("cover"), opacity: 0.92 }} />
             </Box>
             <Box x={1146} y={131} w={273} h={273} border={1} color={C.cream} style={{ overflow: "hidden" }}>
-                <img src={hudSphere} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                <img src={hudSphere} alt="" style={fitImage("contain")} />
             </Box>
 
             <Marker x={771} y={449} w={15} h={27} />

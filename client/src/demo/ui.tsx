@@ -7,7 +7,7 @@
 
 import type { CSSProperties, ReactNode } from "react";
 import { C, FONT } from "./theme.ts";
-import { abs, text } from "./layout.ts";
+import { abs, absFixed, fitImage, sxOff, text } from "./layout.ts";
 import { useTypewriter } from "./hooks.ts";
 import logoAudioLines from "./assets/figma/logo-audio-lines.svg";
 import fingerprintImg from "./assets/figma/fingerprint.png";
@@ -48,9 +48,9 @@ export function Box({ x, y, w, h, border = 1, color = C.cream60, bg = "transpare
     );
 }
 
-/** Solid "Channel marker" block (the red / cream accent bars). */
+/** Solid "Channel marker" block (the red / cream accent bars). Keeps its exact size. */
 export function Marker({ x, y, w, h, color = C.red, style }: { x: number; y: number; w: number; h: number; color?: string; style?: CSSProperties }) {
-    return <div style={{ ...abs(x, y, w, h), background: color, ...style }} />;
+    return <div style={{ ...absFixed(x, y, w, h), background: color, ...style }} />;
 }
 
 /** Text placed at a Figma coordinate. */
@@ -147,6 +147,9 @@ export function BackButton({ onClick }: { onClick: () => void }) {
 
 // ─── Header / footer ──────────────────────────────────────────────────────────
 
+/** Absolute position from a precomputed CSS left value. */
+const at = (left: string, top: number): CSSProperties => ({ position: "absolute", left, top });
+
 interface HeaderProps {
     /** "large" = Page 1 / Camera Record header (32 px title), "small" = all other screens. */
     variant?: "large" | "small";
@@ -167,25 +170,27 @@ export function AppHeader({
         <>
             <div style={{ ...abs(0, 0, 1440, 88), background: C.bg, borderBottom: `1px solid ${C.white20}` }}>
                 {/* Brand mark */}
-                <div style={{ ...abs(30, 26, 36, 36), background: C.redBrand, border: `1px solid ${C.cream}` }}>
-                    <img src={logoAudioLines} alt="" width={23} height={23} style={{ ...abs(5, 5, 23, 23) }} />
+                <div style={{ ...absFixed(30, 26, 36, 36), background: C.redBrand, border: `1px solid ${C.cream}` }}>
+                    <img src={logoAudioLines} alt="" width={23} height={23} style={{ position: "absolute", left: 5, top: 5, width: 23, height: 23 }} />
                 </div>
+                {/* Identity group keeps its exact internal spacing (anchored at x 30) */}
                 {large ? (
                     <>
-                        <Label x={79} y={25} size={32}>AGGRESSION TRAINER</Label>
-                        <div style={{ ...abs(328, 33, 1, 22), background: C.white20 }} />
-                        <Marker x={403} y={29} w={5} h={28} color="rgba(238,238,204,0.81)" />
-                        <Label x={421} y={33} size={20} color={C.white60}>DE-ESCALATION PROTOCOL</Label>
+                        <p style={{ ...at(sxOff(30, 49), 25), ...text(32) }}>AGGRESSION TRAINER</p>
+                        <div style={{ ...at(sxOff(30, 298), 33), width: 1, height: 22, background: C.white20 }} />
+                        <div style={{ ...at(sxOff(30, 373), 29), width: 5, height: 28, background: "rgba(238,238,204,0.81)" }} />
+                        <p style={{ ...at(sxOff(30, 391), 33), ...text(20, C.white60) }}>DE-ESCALATION PROTOCOL</p>
                     </>
                 ) : (
                     <>
-                        <Label x={80} y={30.5} size={24}>AGGRESSION TRAINER</Label>
-                        <Marker x={328} y={30} w={5} h={28} color="rgba(238,238,204,0.81)" />
-                        <Label x={345} y={32} size={20} color={C.white60}>DE-ESCALATION PROTOCOL</Label>
+                        <p style={{ ...at(sxOff(30, 50), 30.5), ...text(24) }}>AGGRESSION TRAINER</p>
+                        <div style={{ ...at(sxOff(30, 298), 30), width: 5, height: 28, background: "rgba(238,238,204,0.81)" }} />
+                        <p style={{ ...at(sxOff(30, 315), 32), ...text(20, C.white60) }}>DE-ESCALATION PROTOCOL</p>
                     </>
                 )}
+                {/* Status: marker + text keep their exact gap */}
                 <Marker x={statusMarkerX} y={statusY} w={15} h={39} />
-                <Label x={statusTextX} y={statusY} size={statusSize} color={statusColor}>{status}</Label>
+                <p style={{ ...at(sxOff(statusMarkerX, statusTextX - statusMarkerX), statusY), ...text(statusSize, statusColor) }}>{status}</p>
             </div>
             <div style={{ ...abs(0, 0, 1440, 88), border: `2px solid ${C.cream80}`, pointerEvents: "none" }} />
         </>
@@ -208,20 +213,25 @@ export function SessionFooter() {
 // ─── Fingerprint panel (Results / Details, bottom right) ──────────────────────
 
 export function FingerprintPanel() {
-    const corner = (src: string, x: number, y: number, rotate: number) => (
+    // Corners hug the (stretched) box edges: box spans x 769 → 958 in Figma.
+    const corner = (src: string, side: "left" | "right", y: number, rotate: number) => (
         <img src={src} alt="" width={15} height={15}
-             style={{ ...abs(x, y, 15, 15), transform: rotate ? `rotate(${rotate}deg)` : undefined }} />
+             style={{
+                 position: "absolute", top: y, width: 15, height: 15,
+                 left: side === "left" ? sxOff(769, 9) : sxOff(958, -23),
+                 transform: rotate ? `rotate(${rotate}deg)` : undefined,
+             }} />
     );
     return (
         <>
             <Box x={769} y={795} w={189} h={160} color={C.cream} />
-            <div style={{ ...abs(818, 809, 92, 134), opacity: 0.8, overflow: "hidden" }}>
-                <img src={fingerprintImg} alt="" style={{ position: "absolute", left: "-0.15%", top: "-0.81%", width: "100.29%", height: "100.81%" }} />
+            <div style={{ ...abs(769, 809, 189, 134), opacity: 0.8 }}>
+                <img src={fingerprintImg} alt="" style={fitImage("contain")} />
             </div>
-            {corner(fpCornerTr, 935, 804, 0)}
-            {corner(fpCornerBr, 935, 932, 90)}
-            {corner(fpCornerTl, 778, 804, -90)}
-            {corner(fpCornerBl, 778, 932, 180)}
+            {corner(fpCornerTr, "right", 804, 0)}
+            {corner(fpCornerBr, "right", 932, 90)}
+            {corner(fpCornerTl, "left", 804, -90)}
+            {corner(fpCornerBl, "left", 932, 180)}
         </>
     );
 }
