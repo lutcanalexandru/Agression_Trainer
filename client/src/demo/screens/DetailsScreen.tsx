@@ -118,16 +118,15 @@ export function DetailsScreen({ index, onSelect, onBack, showTryAgain, onTryAgai
             {/* Decorative bottom panels */}
             <Box x={0} y={773} w={732} h={201} border={2} color={C.cream60} />
             <Box x={730} y={773} w={710} h={201} border={2} color={C.cream60} />
-            {/* Decorative images at their Figma size, kept together as a pair centred in the panel */}
-            <Anchor at={366}>
-                <Box x={18} y={786} w={363} h={179} border={2} color={C.cream60} />
-                <div style={{ ...abs(24, 797, 352, 163), overflow: "hidden" }}>
-                    <img src={detailsConsole} alt="" style={{ position: "absolute", left: 0, top: -101.27, width: 581.82, height: 320.21 }} />
-                </div>
-                <Box x={389} y={786} w={324} h={179} border={2} color={C.cream60} style={{ overflow: "hidden" }}>
-                    <img src={detailsSignal} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                </Box>
-            </Anchor>
+            {/* Decorative image boxes take the same share of the panel as in Figma; the pictures
+                inside keep their proportions (console log at its Figma crop, signal fills its box) */}
+            <Box x={18} y={786} w={363} h={179} border={2} color={C.cream60} />
+            <div style={{ ...abs(24, 797, 352, 163), overflow: "hidden" }}>
+                <img src={detailsConsole} alt="" style={{ position: "absolute", left: 0, top: -101.27, width: 581.82, height: 320.21 }} />
+            </div>
+            <Box x={389} y={786} w={324} h={179} border={2} color={C.cream60} style={{ overflow: "hidden" }}>
+                <img src={detailsSignal} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            </Box>
             <FingerprintPanel />
 
             {showTryAgain && (

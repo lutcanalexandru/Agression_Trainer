@@ -57,37 +57,32 @@ export function HomeScreen({ onAccept, initialPopupOpen = false }: HomeScreenPro
             </p>
             </Anchor>
 
-            {/* Encounter preview (pixel face under the grid): exact size, centred in the right half */}
-            <Anchor at={1080}>
-                <div style={{ ...abs(800, 143, 560, 410), overflow: "hidden" }}>
-                    <img src={homeFace} alt="" style={{ position: "absolute", left: 141.5, top: -4, width: 277, height: 410, objectFit: "cover" }} />
-                </div>
-                <Grid x={800} y={143} w={560} h={410} cellW={28} cellH={29.228} line={1} color={C.grid} />
-                <Box x={800} y={143} w={560} h={410} border={2} color={C.cream90} />
-            </Anchor>
+            {/* Encounter preview: same share of the page as in Figma; the face keeps its proportions, centred */}
+            <div style={{ ...abs(800, 143, 560, 410), overflow: "hidden" }}>
+                <img src={homeFace} alt="" style={{ position: "absolute", left: "calc(50% - 138.5px)", top: -4, width: 277, height: 410, objectFit: "cover" }} />
+            </div>
+            <Grid x={800} y={143} w={560} h={410} cellW={28} cellH={29.228} line={1} color={C.grid} />
+            <Box x={800} y={143} w={560} h={410} border={2} color={C.cream90} />
 
-            {/* Process cards */}
-            {/* Each card keeps its Figma size; the cards spread evenly across the width */}
+            {/* Process cards: same share of the width as in Figma; text keeps its size and margins */}
             {STEPS.map((s, i) => (
-                <Anchor key={s.n} at={288 + i * 432}>
-                <div style={{
+                <div key={s.n} style={{
                     ...abs(80 + i * 432, 599, 416, i === 0 ? 198 : 200), background: C.bg,
                     border: `1px solid ${C.cream}`, boxShadow: "inset 0px 0px 12px 0px rgba(62,23,69,0.3)",
                 }}>
-                    <div style={{ ...abs(22, 22), display: "flex", gap: 8, alignItems: "center" }}>
+                    <div style={{ position: "absolute", left: 22, top: 22, display: "flex", gap: 8, alignItems: "center" }}>
                         <span style={text(11, C.cream)}>{s.n}</span>
                         <span style={text(13, C.white27)}>{s.tag}</span>
                     </div>
-                    <p style={{ ...abs(22, 51), right: 22, ...text(17, C.cream), lineHeight: 1.2 }}>
+                    <p style={{ position: "absolute", left: 22, top: 51, right: 22, ...text(17, C.cream), lineHeight: 1.2 }}>
                         {s.title}
                         {i === 2 && <span style={{ ...text(18, C.white27), marginLeft: 6 }}>◉</span>}
                     </p>
-                    <div style={{ ...abs(22, 85), right: 22, height: 2, background: C.maroon }} />
-                    <p style={{ ...abs(22, 112), right: 22, ...text(16, C.cream60), lineHeight: 1.55, whiteSpace: "normal" }}>
+                    <div style={{ position: "absolute", left: 22, top: 85, right: 22, height: 2, background: C.maroon }} />
+                    <p style={{ position: "absolute", left: 22, top: 112, right: 22, ...text(16, C.cream60), lineHeight: 1.55, whiteSpace: "normal" }}>
                         {s.body}
                     </p>
                 </div>
-                </Anchor>
             ))}
 
             <Anchor at={709}>

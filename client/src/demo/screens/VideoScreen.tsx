@@ -20,7 +20,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ClipData } from "@ar-training/shared";
 import { C } from "../theme.ts";
-import { abs, fitImage, text } from "../layout.ts";
+import { abs, fitImage, insetX, text } from "../layout.ts";
 import { useTypewriter } from "../hooks.ts";
 import { Anchor, AppHeader, Box, ConsoleButton, Cursor, Grid, Label, Marker, Screen, SessionFooter } from "../ui.tsx";
 import { getFaceMedia } from "../faceVideos.ts";
@@ -63,11 +63,14 @@ export function VideoScreen({ clip, videoNumber, onRecord }: VideoScreenProps) {
 
             <Grid {...L.grid} />
 
-            {/* Video window + Rewind: exact Figma size, centred in the left area */}
-            <Anchor at={L.leftCenter}>
-                <Box {...L.window} border={4} color={C.cream60} style={{ overflow: "hidden" }}>
-                    <FaceMedia key={playKey} face={face} onEnded={() => setEnded(true)} />
-                </Box>
+            {/* Video window: takes the same share of the video area as in Figma (≈ 93 % of the width,
+                ≈ 92 % of the height), so a gap stays around it and the grid shows through; on wide
+                screens it becomes wider rather than square */}
+            <Box {...L.window} border={4} color={C.cream60} style={{ overflow: "hidden" }}>
+                <FaceMedia key={playKey} face={face} onEnded={() => setEnded(true)} />
+            </Box>
+            {/* Replay: on the window's bottom-right corner */}
+            <Anchor at={L.window.x + L.window.w}>
                 <button
                     type="button" className="at-btn" aria-label="Replay video" title="Replay video"
                     onClick={() => setRewinding(true)}
@@ -216,8 +219,8 @@ function FaceMedia({ face, onEnded }: { face: FaceMediaInfo; onEnded: () => void
                     onError={() => { setFailed(true); finish(); }}
                     style={{
                         width: "100%", height: "100%", objectFit: "contain", display: "block",
-                        // A bit bigger inside the window (the GIF has empty space around the face).
-                        transform: "scale(1.18)", transformOrigin: "50% 60%",
+                        // 8% bigger inside the window (the GIF has empty space around the face).
+                        transform: "scale(1.08)", transformOrigin: "50% 60%",
                     }}
                 />
                 {face.audio && (
@@ -267,21 +270,27 @@ function RequirementsPanel() {
         <>
             <Box x={1024} y={88} w={416} h={80} border={1} color={C.cream80} />
             <Box x={1024} y={88} w={416} h={886} border={2} color={C.cream70} />
-            {/* Heading and list keep their Figma size, at the left of the column */}
+            {/* Heading keeps its size at the column's left; the list uses the column's width (Figma margins) */}
             <Anchor at={1024}>
                 <Marker x={1045} y={111} w={15} h={35} />
                 <Label x={1077} y={110} size={32}>{"REQUIREMENTS >"}</Label>
-                <div style={{ ...abs(1045, 192, 361), display: "flex", flexDirection: "column", gap: 29 }}>
-                    {items.map(t => (
-                        <div key={t} style={{ position: "relative", paddingLeft: 19 }}>
-                            <span style={{ position: "absolute", left: 0, top: 6, width: 7, height: 19, background: C.cream80 }} />
-                            <p style={{ ...text(24, C.cream), whiteSpace: "normal" }}>{t}</p>
-                        </div>
-                    ))}
-                </div>
             </Anchor>
+            <div style={{ position: "absolute", top: 192, ...insetX(1024, 1440, 21, 34), display: "flex", flexDirection: "column", gap: 29 }}>
+                {items.map(t => (
+                    <div key={t} style={{ position: "relative", paddingLeft: 19 }}>
+                        <span style={{ position: "absolute", left: 0, top: 6, width: 7, height: 19, background: C.cream80 }} />
+                        <p style={{ ...text(24, C.cream), whiteSpace: "normal" }}>{t}</p>
+                    </div>
+                ))}
+            </div>
         </>
     );
+}
+
+/** Inner area of a HUD section (Figma x0 → x1, top y, height h) minus a 16 px margin. */
+const HUD_PAD = 16;
+function hudSlot(x0: number, x1: number, y: number, h: number): React.CSSProperties {
+    return { position: "absolute", top: y + HUD_PAD, height: h - 2 * HUD_PAD, ...insetX(x0, x1, HUD_PAD, HUD_PAD) };
 }
 
 /** Pages 2–4 right column (decorative HUD panels from the prototype). */
@@ -295,28 +304,22 @@ function HudPanels() {
             <Box x={1125} y={88} w={315} h={343} border={2} color={C.cream80} />
             <Box x={730} y={88} w={710} h={886} border={2} color={C.cream70} />
 
-            {/* Images keep their Figma size and crop, centred in their panels */}
-            <Anchor at={927.5}>
-                <Box x={750} y={131} w={353} h={273} border={1} color={C.cream} style={{ overflow: "hidden" }}>
-                    <img src={hudTerrain} alt="" style={{ position: "absolute", left: "-27.13%", top: "0.11%", width: "151.47%", height: "108.57%", opacity: 0.92 }} />
-                </Box>
-            </Anchor>
-            <Anchor at={1282.5}>
-                <Box x={1146} y={131} w={273} h={273} border={1} color={C.cream} style={{ overflow: "hidden" }}>
-                    <img src={hudSphere} alt="" style={fitImage("cover")} />
-                </Box>
-            </Anchor>
+            {/* Decorative pictures: no frame; each fills its section as far as it can
+                without overflowing (16 px margin), keeping its own proportions */}
+            <div style={hudSlot(730, 1125, 88, 343)}>
+                <img src={hudTerrain} alt="" style={{ ...fitImage("contain"), opacity: 0.92 }} />
+            </div>
+            <div style={hudSlot(1125, 1440, 88, 343)}>
+                <img src={hudSphere} alt="" style={fitImage("contain")} />
+            </div>
 
             <Anchor at={730}>
                 <Marker x={771} y={449} w={15} h={27} />
                 <Label x={800} y={449} size={24}>VOLUME LEVELS</Label>
             </Anchor>
-            <Anchor at={1085}>
-                <Box x={743} y={512} w={683} h={186} border={1} color={C.cream} />
-                <div style={{ ...abs(750, 541, 656, 127), overflow: "hidden", opacity: 0.74 }}>
-                    <img src={hudWaveform} alt="" style={{ position: "absolute", left: "-5.17%", top: "0.42%", width: "154.69%", height: "100%" }} />
-                </div>
-            </Anchor>
+            <div style={hudSlot(730, 1440, 494, 227)}>
+                <img src={hudWaveform} alt="" style={{ ...fitImage("contain"), opacity: 0.74 }} />
+            </div>
 
             <Anchor at={730}>
                 <Marker x={751} y={734} w={15} h={30} />

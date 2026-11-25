@@ -7,7 +7,7 @@
 
 import type { CSSProperties, ReactNode } from "react";
 import { C, FONT } from "./theme.ts";
-import { abs, absFixed, fitImage, text } from "./layout.ts";
+import { abs, absFixed, fitImage, sxOff, text } from "./layout.ts";
 import { useTypewriter } from "./hooks.ts";
 import logoAudioLines from "./assets/figma/logo-audio-lines.svg";
 import fingerprintImg from "./assets/figma/fingerprint.png";
@@ -240,23 +240,31 @@ export function SessionFooter() {
 
 // ─── Fingerprint panel (Results / Details, bottom right) ──────────────────────
 
-/** Fingerprint box at the exact Figma size, kept at the left of the bottom-right panel (x 730). */
+/**
+ * Fingerprint box: takes the same share of the bottom-right panel as in Figma
+ * (box x 769 → 958). The fingerprint keeps its proportions, centred; the corner
+ * marks keep their size and hug the box corners.
+ */
 export function FingerprintPanel() {
-    const corner = (src: string, x: number, y: number, rotate: number) => (
+    const corner = (src: string, side: "left" | "right", y: number, rotate: number) => (
         <img src={src} alt="" width={15} height={15}
-             style={{ ...abs(x, y, 15, 15), transform: rotate ? `rotate(${rotate}deg)` : undefined }} />
+             style={{
+                 position: "absolute", top: y, width: 15, height: 15,
+                 left: side === "left" ? sxOff(769, 9) : sxOff(958, -23),
+                 transform: rotate ? `rotate(${rotate}deg)` : undefined,
+             }} />
     );
     return (
-        <Anchor at={730}>
+        <>
             <Box x={769} y={795} w={189} h={160} color={C.cream} />
-            <div style={{ ...abs(818, 809, 92, 134), opacity: 0.8 }}>
+            <div style={{ ...abs(769, 809, 189, 134), opacity: 0.8 }}>
                 <img src={fingerprintImg} alt="" style={fitImage("contain")} />
             </div>
-            {corner(fpCornerTr, 935, 804, 0)}
-            {corner(fpCornerBr, 935, 932, 90)}
-            {corner(fpCornerTl, 778, 804, -90)}
-            {corner(fpCornerBl, 778, 932, 180)}
-        </Anchor>
+            {corner(fpCornerTr, "right", 804, 0)}
+            {corner(fpCornerBr, "right", 932, 90)}
+            {corner(fpCornerTl, "left", 804, -90)}
+            {corner(fpCornerBl, "left", 932, 180)}
+        </>
     );
 }
 

@@ -15,7 +15,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { C } from "../theme.ts";
-import { abs, text } from "../layout.ts";
+import { abs, insetX, text } from "../layout.ts";
 import { Anchor, AppHeader, Box, ConsoleButton, Grid, Label, Marker, Screen, SessionFooter } from "../ui.tsx";
 import recPlay from "../assets/figma/rec-play.svg";
 import recBracket from "../assets/figma/rec-bracket.png";
@@ -140,8 +140,7 @@ export function RecordScreen({ stream, responseNumber, onSubmit }: RecordScreenP
             <Box x={33} y={166} w={994} h={625} border={1} color={C.cream80} style={{ overflow: "hidden" }} />
             <Grid x={34} y={167} w={992} h={623} cellW={49.7} cellH={44.555} line={1} color={C.gridStrong} />
 
-            {/* Inner camera frame, brackets and REC status: exact Figma size, centred in the camera area */}
-            <Anchor at={530}>
+            {/* Inner camera frame: same share of the camera area as in Figma (x 107 → 944) */}
                 <Box x={107} y={225} w={837} h={503} border={4} color={C.cream60} bg={C.bg} style={{ overflow: "hidden" }}>
                     {reviewing && recordingUrl ? (
                         <video
@@ -156,13 +155,13 @@ export function RecordScreen({ stream, responseNumber, onSubmit }: RecordScreenP
                         <video ref={liveEl} muted playsInline autoPlay style={mediaStyle} />
                     ) : (
                         <img src={recCamera} alt="" width={124} height={124}
-                             style={{ position: "absolute", left: 352, top: 168, width: 124, height: 124 }} />
+                             style={{ position: "absolute", left: "calc(50% - 62px)", top: 168, width: 124, height: 124 }} />
                     )}
                 </Box>
+            {/* Corner brackets and REC status keep their size and hug the frame's corners */}
+            <Anchor at={107}>
                 <img src={recBracket} alt="" style={{ ...abs(130.4, 257, 50.2, 50.2), opacity: 0.7 }} />
-                <img src={recBracket} alt="" style={{ ...abs(879.4, 257, 50.2, 50.2), opacity: 0.7, transform: "rotate(90deg)" }} />
                 <img src={recBracket} alt="" style={{ ...abs(130.4, 658, 50.2, 50.2), opacity: 0.7, transform: "rotate(-90deg)" }} />
-                <img src={recBracket} alt="" style={{ ...abs(879.4, 658, 50.2, 50.2), opacity: 0.7, transform: "rotate(180deg)" }} />
                 <img src={recStatusDot} alt="" width={23} height={23}
                      style={{
                          ...abs(147, 272, 23, 23),
@@ -171,6 +170,10 @@ export function RecordScreen({ stream, responseNumber, onSubmit }: RecordScreenP
                 <Label x={182} y={272} size={20} color={C.cream80}>
                     {recorderUnavailable ? "REC · UNAVAILABLE" : `REC · ${formatTime(seconds)}`}
                 </Label>
+            </Anchor>
+            <Anchor at={944}>
+                <img src={recBracket} alt="" style={{ ...abs(879.4, 257, 50.2, 50.2), opacity: 0.7, transform: "rotate(90deg)" }} />
+                <img src={recBracket} alt="" style={{ ...abs(879.4, 658, 50.2, 50.2), opacity: 0.7, transform: "rotate(180deg)" }} />
             </Anchor>
 
             {/* Device checks */}
@@ -201,8 +204,7 @@ export function RecordScreen({ stream, responseNumber, onSubmit }: RecordScreenP
                 <Marker x={1089} y={135} w={9} h={21} />
                 <Label x={1131} y={131} size={24} color={C.cream80}>RECORD YOUR RESPONSE</Label>
             </Anchor>
-            <Anchor at={1059}>
-            <div style={{ ...abs(1074, 191, 357), display: "flex", flexDirection: "column", gap: 0 }}>
+            <div style={{ position: "absolute", top: 191, ...insetX(1059, 1437, 15, 6), display: "flex", flexDirection: "column", gap: 0 }}>
                 {GUIDANCE.map(g => (
                     <div key={g} style={{ position: "relative", paddingLeft: 15 }}>
                         <span style={{ position: "absolute", left: 0, top: 5, width: 7, height: 19, background: C.cream80 }} />
@@ -211,16 +213,13 @@ export function RecordScreen({ stream, responseNumber, onSubmit }: RecordScreenP
                 ))}
             </div>
 
-            </Anchor>
-
             <Box x={1059} y={355} w={378} h={50} border={2} color={C.cream80} />
             <Anchor at={1248}>
                 <Marker x={1131} y={369} w={9} h={21} />
                 <Label x={1183} y={367} size={24} color={C.cream80}>TIPS LIST</Label>
             </Anchor>
             <div style={{ ...abs(1081, 448, 334, 1), background: "rgba(105,15,35,0.27)" }} />
-            <Anchor at={1059}>
-            <div style={{ ...abs(1072, 441, 359), display: "flex", flexDirection: "column", gap: 34 }}>
+            <div style={{ position: "absolute", top: 441, ...insetX(1059, 1437, 13, 6), display: "flex", flexDirection: "column", gap: 34 }}>
                 {TIPS.map(t => (
                     <div key={t} style={{ display: "flex", gap: 9, alignItems: "flex-start" }}>
                         <span style={{ ...text(32, C.cream90), lineHeight: "30px", width: 16, flex: "none" }}>♦</span>
@@ -228,7 +227,6 @@ export function RecordScreen({ stream, responseNumber, onSubmit }: RecordScreenP
                     </div>
                 ))}
             </div>
-            </Anchor>
 
             {/* Controls: exact size; recording buttons at the left, Submit centred under the column */}
             <Anchor at={33}>

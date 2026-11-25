@@ -12,7 +12,7 @@
 // =============================================================================
 
 import { C } from "../theme.ts";
-import { abs, insetX, text } from "../layout.ts";
+import { abs, insetX, sxOff, text } from "../layout.ts";
 import {
     Anchor, AppHeader, Box, ConsoleButton, FingerprintPanel, Grid, Label, Marker, Screen, SessionFooter, TypedParagraphs,
 } from "../ui.tsx";
@@ -31,8 +31,6 @@ const COLUMNS = [
     { x: 410, w: 88 },
     { x: 588, w: 88 },
 ];
-/** Centre of each column's slot: the chart box (x 13 → 711) split by dividers at 183, 365, 548. */
-const SLOT_CENTERS = [98, 274, 456.5, 629.5];
 const COL_Y = 188;
 const COL_H = 492;
 const CELL_H = (COL_H - 4) / 10;
@@ -66,11 +64,9 @@ export function ResultsScreen({ breakdown, onDetails }: ResultsScreenProps) {
             <Box x={13} y={158} w={698} h={536} border={4} color={C.cream60} />
             {[183, 365, 548].map(x => <div key={x} style={{ ...abs(x - 1, 161, 2, 533), background: C.cream60 }} />)}
 
-            {/* Each column keeps its Figma size, centred in its slot between the dividers */}
+            {/* Columns take the same share of their slot as in Figma; their bars widen with them */}
             {COLUMNS.map((col, i) => (
-                <Anchor key={i} at={SLOT_CENTERS[i]}>
-                    <ChartColumn x={col.x} w={col.w} level={CRITERIA[i]?.score ?? 0} />
-                </Anchor>
+                <ChartColumn key={i} x={col.x} w={col.w} level={CRITERIA[i]?.score ?? 0} />
             ))}
 
             {/* ── Raw stats (SAMPLE DATA) ────────────────────────────────── */}
@@ -142,7 +138,8 @@ function ChartColumn({ x, w, level }: { x: number; w: number; level: number }) {
                         {lvl <= level && (
                             <div style={{ ...abs(x + 13, cellTop + (CELL_H - SEG_H) / 2, SEG_W, SEG_H), background: segmentColor(lvl) }} />
                         )}
-                        <span style={{ ...abs(x - (lvl === 10 ? 33 : 30), cellTop + (CELL_H - 27) / 2), ...text(20, "rgba(238,238,204,0.88)") }}>
+                        {/* Scale label: exact gap to the column's left edge */}
+                        <span style={{ position: "absolute", left: sxOff(x, lvl === 10 ? -33 : -30), top: cellTop + (CELL_H - 27) / 2, ...text(20, "rgba(238,238,204,0.88)") }}>
                             {`${lvl}-`}
                         </span>
                     </div>
