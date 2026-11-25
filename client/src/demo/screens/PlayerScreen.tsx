@@ -28,51 +28,51 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ClipData } from "@ar-training/shared";
 
 interface PlayerScreenProps {
-    videoRef:                React.RefObject<HTMLVideoElement | null>;
-    stream:                  MediaStream | null;
-    currentClipId:           string;
-    clipMeta:                ClipData | null;
-    onClipEnded:             (clipId: string) => void;
+    videoRef: React.RefObject<HTMLVideoElement | null>;
+    stream: MediaStream | null;
+    currentClipId: string;
+    clipMeta: ClipData | null;
+    onClipEnded: (clipId: string) => void;
     responseDurationSeconds: number;
-    liveTranscript:          string;
+    liveTranscript: string;
 }
 
 type Phase = "watch" | "respond";
 
 const FEATURE_LABELS: Record<string, string> = {
-    raised_voice:       "Luide stem",
-    calm_voice:         "Rustige stem",
+    raised_voice: "Luide stem",
+    calm_voice: "Rustige stem",
     aggressive_posture: "Agressieve houding",
-    open_posture:       "Open houding",
-    crossed_arms:       "Gekruiste armen",
+    open_posture: "Open houding",
+    crossed_arms: "Gekruiste armen",
     direct_eye_contact: "Oogcontact",
-    crying:             "Emotioneel",
-    pointing_gesture:   "Wijzend gebaar",
-    backing_away:       "Achteruit lopen",
-    silence:            "Stilte",
+    crying: "Emotioneel",
+    pointing_gesture: "Wijzend gebaar",
+    backing_away: "Achteruit lopen",
+    silence: "Stilte",
 };
 
 export function PlayerScreen({
-                                 videoRef,
-                                 stream,
-                                 currentClipId,
-                                 clipMeta,
-                                 onClipEnded,
-                                 responseDurationSeconds,
-                                 liveTranscript,
-                             }: PlayerScreenProps) {
-    const [phase,       setPhase]       = useState<Phase>("watch");
-    const [timeLeft,    setTimeLeft]    = useState(responseDurationSeconds);
-    const [ended,       setEnded]       = useState(false);
+    videoRef,
+    stream,
+    currentClipId,
+    clipMeta,
+    onClipEnded,
+    responseDurationSeconds,
+    liveTranscript,
+}: PlayerScreenProps) {
+    const [phase, setPhase] = useState<Phase>("watch");
+    const [timeLeft, setTimeLeft] = useState(responseDurationSeconds);
+    const [ended, setEnded] = useState(false);
     const [videoFailed, setVideoFailed] = useState(false);
 
     // Guards — reset on each clip mount via the clip-change effect below.
     // endedRef:       prevents onClipEnded from firing more than once per clip.
     // phaseAdvanced:  prevents phase advancing to "respond" more than once per clip.
-    const endedRef        = useRef(false);
-    const phaseAdvanced   = useRef(false);
-    const clipIdRef       = useRef(currentClipId);
-    clipIdRef.current     = currentClipId;
+    const endedRef = useRef(false);
+    const phaseAdvanced = useRef(false);
+    const clipIdRef = useRef(currentClipId);
+    clipIdRef.current = currentClipId;
 
     // ── Stream binding ────────────────────────────────────────────────────────
     useLayoutEffect(() => {
@@ -90,7 +90,7 @@ export function PlayerScreen({
         setTimeLeft(responseDurationSeconds);
         setEnded(false);
         setVideoFailed(false);
-        endedRef.current      = false;
+        endedRef.current = false;
         phaseAdvanced.current = false;
     }, [currentClipId, responseDurationSeconds]);
 
@@ -132,15 +132,15 @@ export function PlayerScreen({
         onClipEnded(currentClipId);
     };
 
-    const videoUrl  = clipMeta?.video_url ?? null;
+    const videoUrl = clipMeta?.video_url ?? null;
     const showVideo = videoUrl !== null && !videoFailed;
 
     // SVG countdown arc
     const timerRadius = 24;
-    const timerCirc   = 2 * Math.PI * timerRadius;
-    const timerPct    = timeLeft / responseDurationSeconds;
-    const timerDash   = timerCirc * timerPct;
-    const timerColor  = timeLeft <= 5 ? "#ef4444" : "#6366f1";
+    const timerCirc = 2 * Math.PI * timerRadius;
+    const timerPct = timeLeft / responseDurationSeconds;
+    const timerDash = timerCirc * timerPct;
+    const timerColor = timeLeft <= 5 ? "#ef4444" : "#6366f1";
 
     return (
         <>
@@ -351,217 +351,217 @@ const PLAYER_RESPONSIVE_CSS = `
 
 const s: Record<string, React.CSSProperties> = {
     root: {
-        display:    "grid",
-        minHeight:  "100vh",
+        display: "grid",
+        minHeight: "100vh",
         background: "#0f172a",
     },
     left: {
-        display:       "flex",
+        display: "flex",
         flexDirection: "column",
-        gap:           "14px",
-        padding:       "24px",
-        borderRight:   "1px solid #1e293b",
-        overflowY:     "auto",
+        gap: "14px",
+        padding: "24px",
+        borderRight: "1px solid #1e293b",
+        overflowY: "auto",
     },
     scenarioVideo: {
-        width:        "100%",
-        aspectRatio:  "16/9",
+        width: "100%",
+        aspectRatio: "16/9",
         borderRadius: "10px",
-        background:   "#000",
-        border:       "1px solid #334155",
-        display:      "block",
-        flexShrink:   0,
+        background: "#000",
+        border: "1px solid #334155",
+        display: "block",
+        flexShrink: 0,
     },
     fallbackHeader: {
-        width:          "100%",
-        aspectRatio:    "16/9",
-        background:     "#1e293b",
-        borderRadius:   "10px",
-        border:         "1px dashed #334155",
-        display:        "flex",
-        flexDirection:  "column",
-        alignItems:     "center",
+        width: "100%",
+        aspectRatio: "16/9",
+        background: "#1e293b",
+        borderRadius: "10px",
+        border: "1px dashed #334155",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
         justifyContent: "center",
-        gap:            "10px",
-        flexShrink:     0,
+        gap: "10px",
+        flexShrink: 0,
     },
     emptyPlaceholder: {
-        width:          "100%",
-        aspectRatio:    "16/9",
-        background:     "#1e293b",
-        borderRadius:   "10px",
-        border:         "1px solid #334155",
-        display:        "flex",
-        alignItems:     "center",
+        width: "100%",
+        aspectRatio: "16/9",
+        background: "#1e293b",
+        borderRadius: "10px",
+        border: "1px solid #334155",
+        display: "flex",
+        alignItems: "center",
         justifyContent: "center",
-        flexShrink:     0,
+        flexShrink: 0,
     },
     fallbackLabel: {
-        fontSize:      "12px",
-        color:         "#475569",
+        fontSize: "12px",
+        color: "#475569",
         textTransform: "uppercase" as const,
         letterSpacing: "0.08em",
     },
     fallbackClipId: {
-        fontSize:   "13px",
-        color:      "#64748b",
+        fontSize: "13px",
+        color: "#64748b",
         fontFamily: "monospace",
     },
     skipBtn: {
-        marginTop:    "4px",
-        padding:      "6px 14px",
-        fontSize:     "13px",
-        fontWeight:   "500",
-        background:   "#334155",
-        color:        "#94a3b8",
-        border:       "none",
+        marginTop: "4px",
+        padding: "6px 14px",
+        fontSize: "13px",
+        fontWeight: "500",
+        background: "#334155",
+        color: "#94a3b8",
+        border: "none",
         borderRadius: "6px",
-        cursor:       "pointer",
+        cursor: "pointer",
     },
     transcriptBox: {
-        background:   "#1e293b",
+        background: "#1e293b",
         borderRadius: "8px",
-        padding:      "14px 16px",
-        borderLeft:   "3px solid #6366f1",
+        padding: "14px 16px",
+        borderLeft: "3px solid #6366f1",
     },
     transcriptText: {
-        margin:     "6px 0 0",
-        fontSize:   "15px",
-        color:      "#cbd5e1",
+        margin: "6px 0 0",
+        fontSize: "15px",
+        color: "#cbd5e1",
         lineHeight: 1.6,
-        fontStyle:  "italic",
+        fontStyle: "italic",
     },
     featuresBox: {
-        background:   "#1e293b",
+        background: "#1e293b",
         borderRadius: "8px",
-        padding:      "14px 16px",
+        padding: "14px 16px",
     },
     featureTags: {
-        display:   "flex",
-        flexWrap:  "wrap" as const,
-        gap:       "6px",
+        display: "flex",
+        flexWrap: "wrap" as const,
+        gap: "6px",
         marginTop: "8px",
     },
     tag: {
-        padding:      "3px 10px",
+        padding: "3px 10px",
         borderRadius: "999px",
-        fontSize:     "12px",
-        background:   "#334155",
-        color:        "#94a3b8",
-        border:       "1px solid #475569",
+        fontSize: "12px",
+        background: "#334155",
+        color: "#94a3b8",
+        border: "1px solid #475569",
     },
     watchHint: {
-        margin:     "4px 0 0",
-        fontSize:   "12px",
-        color:      "#334155",
+        margin: "4px 0 0",
+        fontSize: "12px",
+        color: "#334155",
         lineHeight: 1.5,
-        fontStyle:  "italic",
+        fontStyle: "italic",
     },
     respondPanel: {
-        display:       "flex",
+        display: "flex",
         flexDirection: "column",
-        gap:           "14px",
-        flex:          1,
+        gap: "14px",
+        flex: 1,
     },
     respondHeader: {
-        display:       "flex",
+        display: "flex",
         flexDirection: "column",
-        gap:           "8px",
+        gap: "8px",
     },
     respondTitle: {
-        display:    "block",
-        fontSize:   "22px",
+        display: "block",
+        fontSize: "22px",
         fontWeight: "700",
-        color:      "#f1f5f9",
+        color: "#f1f5f9",
     },
     respondInstructions: {
-        margin:     0,
-        fontSize:   "14px",
-        color:      "#94a3b8",
+        margin: 0,
+        fontSize: "14px",
+        color: "#94a3b8",
         lineHeight: 1.6,
     },
     liveTranscriptBox: {
-        background:   "#0f172a",
+        background: "#0f172a",
         borderRadius: "8px",
-        padding:      "12px 14px",
-        border:       "1px solid #334155",
-        minHeight:    "56px",
+        padding: "12px 14px",
+        border: "1px solid #334155",
+        minHeight: "56px",
     },
     liveTranscriptText: {
-        margin:     "6px 0 0",
-        fontSize:   "13px",
-        color:      "#94a3b8",
+        margin: "6px 0 0",
+        fontSize: "13px",
+        color: "#94a3b8",
         lineHeight: 1.6,
-        fontStyle:  "italic",
+        fontStyle: "italic",
         whiteSpace: "pre-wrap" as const,
     },
     liveTranscriptEmpty: {
-        color:     "#334155",
+        color: "#334155",
         fontStyle: "italic",
     },
     right: {
-        display:       "flex",
+        display: "flex",
         flexDirection: "column",
-        gap:           "16px",
-        padding:       "24px",
+        gap: "16px",
+        padding: "24px",
     },
     // Single webcam card — used in both phases at fixed 4:3 ratio.
     // No flex-stretch: the right column is a normal scrolling flex column.
     webcamCard: {
-        display:       "flex",
+        display: "flex",
         flexDirection: "column",
-        gap:           "8px",
+        gap: "8px",
     },
     webcam: {
-        width:        "100%",
-        aspectRatio:  "4/3",
-        objectFit:    "cover",
+        width: "100%",
+        aspectRatio: "4/3",
+        objectFit: "cover",
         borderRadius: "10px",
-        display:      "block",
-        background:   "#0c1221",
-        border:       "1px solid #334155",
-        transform:    "scaleX(-1)",
+        display: "block",
+        background: "#0c1221",
+        border: "1px solid #334155",
+        transform: "scaleX(-1)",
     },
     sectionLabel: {
-        display:       "block",
-        fontSize:      "10px",
-        color:         "#475569",
+        display: "block",
+        fontSize: "10px",
+        color: "#475569",
         textTransform: "uppercase" as const,
         letterSpacing: "0.1em",
-        marginBottom:  "2px",
+        marginBottom: "2px",
     },
     timerRow: {
-        display:    "flex",
+        display: "flex",
         alignItems: "center",
-        gap:        "12px",
+        gap: "12px",
     },
     timerSvg: {
         flexShrink: 0,
     },
     timerLabel: {
-        fontSize:   "13px",
+        fontSize: "13px",
         lineHeight: 1.4,
     },
     btn: {
-        width:        "100%",
-        padding:      "14px",
-        fontSize:     "15px",
-        fontWeight:   "600",
-        background:   "#6366f1",
-        color:        "#fff",
-        border:       "none",
+        width: "100%",
+        padding: "14px",
+        fontSize: "15px",
+        fontWeight: "600",
+        background: "#6366f1",
+        color: "#fff",
+        border: "none",
         borderRadius: "8px",
-        cursor:       "pointer",
+        cursor: "pointer",
     },
     btnDone: {
         background: "#1e293b",
-        color:      "#475569",
-        cursor:     "not-allowed",
+        color: "#475569",
+        cursor: "not-allowed",
     },
     hint: {
-        margin:     0,
-        fontSize:   "12px",
-        color:      "#475569",
+        margin: 0,
+        fontSize: "12px",
+        color: "#475569",
         lineHeight: 1.5,
     },
 };

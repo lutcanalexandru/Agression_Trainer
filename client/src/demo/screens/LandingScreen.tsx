@@ -19,7 +19,7 @@ import { useEffect, useState } from "react";
 type PermissionState = "pending" | "granted" | "denied";
 
 interface LandingScreenProps {
-    ready:     boolean;
+    ready: boolean;
     onConnect: () => Promise<void>;
 }
 
@@ -48,7 +48,7 @@ export function LandingScreen({ ready, onConnect }: LandingScreenProps) {
         return () => { cancelled = true; };
     }, []);
 
-    const canStart   = ready && permission === "granted";
+    const canStart = ready && permission === "granted";
     const loadingBtn = !ready;
     const waitingPerm = ready && permission === "pending";
 
@@ -76,7 +76,7 @@ export function LandingScreen({ ready, onConnect }: LandingScreenProps) {
                     <span style={s.permLabel}>
                         {permission === "pending" && "Camera en microfoon — toestemming gevraagd…"}
                         {permission === "granted" && "Camera en microfoon — toegang verleend"}
-                        {permission === "denied"  && "Camera en microfoon — toegang geweigerd"}
+                        {permission === "denied" && "Camera en microfoon — toegang geweigerd"}
                     </span>
                 </div>
 
@@ -111,94 +111,94 @@ export function LandingScreen({ ready, onConnect }: LandingScreenProps) {
 function PermissionDot({ state }: { state: PermissionState }) {
     const color =
         state === "granted" ? "#22c55e" :
-            state === "denied"  ? "#ef4444" :
+            state === "denied" ? "#ef4444" :
                 "#f59e0b";
     return <span style={{ ...s.dot, background: color }} />;
 }
 
 const s: Record<string, React.CSSProperties> = {
     root: {
-        minHeight:      "100vh",
-        display:        "flex",
-        alignItems:     "center",
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
         justifyContent: "center",
-        background:     "#0f172a",
-        padding:        "24px",
+        background: "#0f172a",
+        padding: "24px",
     },
     card: {
-        maxWidth:     "480px",
-        width:        "100%",
-        background:   "#1e293b",
+        maxWidth: "480px",
+        width: "100%",
+        background: "#1e293b",
         borderRadius: "12px",
-        padding:      "40px 36px",
-        boxShadow:    "0 8px 32px rgba(0,0,0,0.4)",
+        padding: "40px 36px",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
     },
     title: {
-        margin:     "0 0 16px",
-        fontSize:   "24px",
+        margin: "0 0 16px",
+        fontSize: "24px",
         fontWeight: "700",
-        color:      "#f1f5f9",
+        color: "#f1f5f9",
         lineHeight: 1.2,
     },
     description: {
-        margin:     "0 0 24px",
-        fontSize:   "15px",
-        color:      "#94a3b8",
+        margin: "0 0 24px",
+        fontSize: "15px",
+        color: "#94a3b8",
         lineHeight: 1.6,
     },
     permRow: {
-        display:      "flex",
-        alignItems:   "center",
-        gap:          "10px",
+        display: "flex",
+        alignItems: "center",
+        gap: "10px",
         marginBottom: "16px",
     },
     dot: {
-        display:      "inline-block",
-        width:        "10px",
-        height:       "10px",
+        display: "inline-block",
+        width: "10px",
+        height: "10px",
         borderRadius: "50%",
-        flexShrink:   0,
+        flexShrink: 0,
     },
     permLabel: {
-        fontSize:   "13px",
-        color:      "#94a3b8",
+        fontSize: "13px",
+        color: "#94a3b8",
         lineHeight: 1.4,
     },
     deniedBox: {
-        background:   "#1c0e0e",
-        border:       "1px solid #7f1d1d",
+        background: "#1c0e0e",
+        border: "1px solid #7f1d1d",
         borderRadius: "8px",
-        padding:      "14px 16px",
+        padding: "14px 16px",
         marginBottom: "20px",
     },
     deniedText: {
-        margin:     0,
-        fontSize:   "13px",
-        color:      "#fca5a5",
+        margin: 0,
+        fontSize: "13px",
+        color: "#fca5a5",
         lineHeight: 1.6,
     },
     btn: {
-        width:        "100%",
-        padding:      "14px",
-        fontSize:     "16px",
-        fontWeight:   "600",
-        background:   "#6366f1",
-        color:        "#fff",
-        border:       "none",
+        width: "100%",
+        padding: "14px",
+        fontSize: "16px",
+        fontWeight: "600",
+        background: "#6366f1",
+        color: "#fff",
+        border: "none",
         borderRadius: "8px",
-        cursor:       "pointer",
-        marginTop:    "8px",
+        cursor: "pointer",
+        marginTop: "8px",
     },
     btnDisabled: {
         background: "#334155",
-        color:      "#64748b",
-        cursor:     "not-allowed",
+        color: "#64748b",
+        cursor: "not-allowed",
     },
     hint: {
-        margin:      "12px 0 0",
-        fontSize:    "12px",
-        color:       "#475569",
-        lineHeight:  1.5,
-        textAlign:   "center",
+        margin: "12px 0 0",
+        fontSize: "12px",
+        color: "#475569",
+        lineHeight: 1.5,
+        textAlign: "center",
     },
 };

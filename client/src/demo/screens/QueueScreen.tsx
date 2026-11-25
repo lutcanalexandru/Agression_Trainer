@@ -8,7 +8,7 @@
 import { useEffect, useState } from "react";
 
 interface QueueScreenProps {
-    queuePos:     number | null;
+    queuePos: number | null;
     onDisconnect: () => void;
 }
 
@@ -47,59 +47,59 @@ const RING_SIZE = 56;
 
 const s: Record<string, React.CSSProperties> = {
     root: {
-        minHeight:      "100vh",
-        display:        "flex",
-        alignItems:     "center",
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
         justifyContent: "center",
-        background:     "#0f172a",
+        background: "#0f172a",
     },
     card: {
-        textAlign:    "center",
-        padding:      "48px 40px",
-        background:   "#1e293b",
+        textAlign: "center",
+        padding: "48px 40px",
+        background: "#1e293b",
         borderRadius: "12px",
-        maxWidth:     "360px",
-        width:        "100%",
-        boxShadow:    "0 8px 32px rgba(0,0,0,0.4)",
+        maxWidth: "360px",
+        width: "100%",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
     },
     spinner: {
-        display:        "flex",
+        display: "flex",
         justifyContent: "center",
-        marginBottom:   "24px",
+        marginBottom: "24px",
     },
     ring: {
-        width:          `${RING_SIZE}px`,
-        height:         `${RING_SIZE}px`,
-        borderRadius:   "50%",
-        border:         "4px solid #334155",
+        width: `${RING_SIZE}px`,
+        height: `${RING_SIZE}px`,
+        borderRadius: "50%",
+        border: "4px solid #334155",
         borderTopColor: "#6366f1",
-        animation:      "spin 0.9s linear infinite",
+        animation: "spin 0.9s linear infinite",
     },
     title: {
-        margin:     "0 0 10px",
-        fontSize:   "20px",
+        margin: "0 0 10px",
+        fontSize: "20px",
         fontWeight: "600",
-        color:      "#f1f5f9",
+        color: "#f1f5f9",
     },
     subtitle: {
-        margin:   "0 0 12px",
+        margin: "0 0 12px",
         fontSize: "15px",
-        color:    "#94a3b8",
+        color: "#94a3b8",
     },
     hint: {
-        margin:       "0 0 24px",
-        fontSize:     "12px",
-        color:        "#475569",
+        margin: "0 0 24px",
+        fontSize: "12px",
+        color: "#475569",
     },
     leaveBtn: {
-        width:        "100%",
-        padding:      "10px",
-        fontSize:     "14px",
-        fontWeight:   "500",
-        background:   "transparent",
-        color:        "#64748b",
-        border:       "1px solid #334155",
+        width: "100%",
+        padding: "10px",
+        fontSize: "14px",
+        fontWeight: "500",
+        background: "transparent",
+        color: "#64748b",
+        border: "1px solid #334155",
         borderRadius: "8px",
-        cursor:       "pointer",
+        cursor: "pointer",
     },
 };
