@@ -71,6 +71,9 @@ export function GifPlayer({ src, playing, style, onStart, onError }: GifPlayerPr
                     if (cancelled) { image.close(); return; }
                     if (canvas.width !== image.displayWidth) canvas.width = image.displayWidth;
                     if (canvas.height !== image.displayHeight) canvas.height = image.displayHeight;
+                    // Clear first: the GIF has transparent areas, and drawing over the
+                    // previous frame left the earlier (first) frame showing behind it.
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.drawImage(image as unknown as CanvasImageSource, 0, 0);
                     const ms = (image.duration ?? 0) / 1000;
                     image.close();

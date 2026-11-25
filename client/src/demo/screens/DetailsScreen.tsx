@@ -14,9 +14,9 @@
 // =============================================================================
 
 import { C } from "../theme.ts";
-import { abs, text } from "../layout.ts";
+import { abs, insetX, text } from "../layout.ts";
 import {
-    AppHeader, BackButton, Box, ConsoleButton, FingerprintPanel, Label, Marker, Screen, SessionFooter, TypedParagraphs,
+    Anchor, AppHeader, BackButton, Box, ConsoleButton, FingerprintPanel, Label, Marker, Screen, SessionFooter, TypedParagraphs,
 } from "../ui.tsx";
 import { CRITERIA } from "../resultsData.ts";
 import detailsConsole from "../assets/figma/details-console.png";
@@ -48,11 +48,18 @@ export function DetailsScreen({ index, onSelect, onBack, showTryAgain, onTryAgai
             {/* Column headers */}
             <Box x={0} y={88} w={730} h={54} border={1} color={C.cream60} />
             <Box x={731} y={88} w={709} h={54} border={1} color={C.cream60} />
-            <Marker x={186} y={102} w={15} h={27} />
-            <Label x={215} y={101} size={24}>Individual Stats Breakdown:</Label>
-            <Label x={588} y={108} size={16} color={C.sysRed}>[SAMPLE DATA]</Label>
-            <Marker x={926} y={102} w={15} h={27} />
-            <Label x={955} y={101} size={24}>Detailed Stat Breakdown:</Label>
+            {/* Section titles stay centred in their bars; the tag stays at the bar's right end */}
+            <Anchor at={365}>
+                <Marker x={186} y={102} w={15} h={27} />
+                <Label x={215} y={101} size={24}>Individual Stats Breakdown:</Label>
+            </Anchor>
+            <Anchor at={730}>
+                <Label x={588} y={108} size={16} color={C.sysRed}>[SAMPLE DATA]</Label>
+            </Anchor>
+            <Anchor at={1085}>
+                <Marker x={926} y={102} w={15} h={27} />
+                <Label x={955} y={101} size={24}>Detailed Stat Breakdown:</Label>
+            </Anchor>
 
             {/* Right panel, with an opening where the active row connects to it */}
             <Box x={730} y={88} w={710} h={886} border={2} color={C.cream70} />
@@ -66,15 +73,21 @@ export function DetailsScreen({ index, onSelect, onBack, showTryAgain, onTryAgai
                 return (
                     <div key={c.label}>
                         <Box x={0} y={HEADER_Y[i]} w={732} h={57} border={1} color={C.cream60} />
-                        <Marker x={31} y={HEADER_Y[i] + 15} w={13} h={25} />
-                        <Label x={51} y={HEADER_Y[i] + 15} size={24}>{`${c.label}:`}</Label>
+                        <Anchor at={0}>
+                            <Marker x={31} y={HEADER_Y[i] + 15} w={13} h={25} />
+                            <Label x={51} y={HEADER_Y[i] + 15} size={24}>{`${c.label}:`}</Label>
+                        </Anchor>
 
                         <div style={{
                             ...abs(0, rowY, active ? 733 : 732, rowH),
                             border: `3px solid ${C.cream60}`, borderRight: active ? "none" : `3px solid ${C.cream60}`,
                         }} />
-                        <Label x={active ? 48 : 31} y={rowY + 30} size={40}>{`${c.score}/10`}</Label>
+                        <Anchor at={0}>
+                            <Label x={active ? 48 : 31} y={rowY + 30} size={40}>{`${c.score}/10`}</Label>
+                        </Anchor>
 
+                        {/* Grade (and MORE) keep their Figma size at the row's right end */}
+                        <Anchor at={732}>
                         {active ? (
                             <div style={{ ...abs(400, rowY + 27, 312, 52), display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 20 }}>
                                 <span style={{ width: 26, height: 52, background: C.cream80, flex: "none" }} />
@@ -92,33 +105,38 @@ export function DetailsScreen({ index, onSelect, onBack, showTryAgain, onTryAgai
                                 />
                             </>
                         )}
+                        </Anchor>
                     </div>
                 );
             })}
 
             {/* Detailed stat breakdown */}
-            <div key={index} className="at-scroll" style={{ ...abs(764, 166, 666, 600), overflowY: "auto", paddingLeft: 23 }}>
+            <div key={index} className="at-scroll" style={{ position: "absolute", top: 166, height: 600, ...insetX(730, 1440, 34, 10), overflowY: "auto", paddingLeft: 23, boxSizing: "border-box" }}>
                 <TypedParagraphs paragraphs={paragraphs} size={28} markerW={11} markerH={29} gap={34} />
             </div>
 
             {/* Decorative bottom panels */}
             <Box x={0} y={773} w={732} h={201} border={2} color={C.cream60} />
             <Box x={730} y={773} w={710} h={201} border={2} color={C.cream60} />
-            <Box x={18} y={786} w={363} h={179} border={2} color={C.cream60} />
-            <div style={{ ...abs(24, 797, 352, 163), overflow: "hidden" }}>
-                {/* Same crop as Figma, in exact pixels so the image never distorts */}
-                <img src={detailsConsole} alt="" style={{ position: "absolute", left: 0, top: -101.27, width: 581.82, height: 320.21 }} />
-            </div>
-            <Box x={389} y={786} w={324} h={179} border={2} color={C.cream60} style={{ overflow: "hidden" }}>
-                <img src={detailsSignal} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-            </Box>
+            {/* Decorative images at their Figma size, kept together as a pair centred in the panel */}
+            <Anchor at={366}>
+                <Box x={18} y={786} w={363} h={179} border={2} color={C.cream60} />
+                <div style={{ ...abs(24, 797, 352, 163), overflow: "hidden" }}>
+                    <img src={detailsConsole} alt="" style={{ position: "absolute", left: 0, top: -101.27, width: 581.82, height: 320.21 }} />
+                </div>
+                <Box x={389} y={786} w={324} h={179} border={2} color={C.cream60} style={{ overflow: "hidden" }}>
+                    <img src={detailsSignal} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                </Box>
+            </Anchor>
             <FingerprintPanel />
 
             {showTryAgain && (
-                <ConsoleButton
-                    x={1044} y={840} w={300} h={74} label="TRY AGAIN >"
-                    marker={{ x: 21, w: 15, h: 35 }} labelX={64} onClick={onTryAgain}
-                />
+                <Anchor at={1440}>
+                    <ConsoleButton
+                        x={1044} y={840} w={300} h={74} label="TRY AGAIN >"
+                        marker={{ x: 21, w: 15, h: 35 }} labelX={64} onClick={onTryAgain}
+                    />
+                </Anchor>
             )}
 
             <BackButton onClick={onBack} />

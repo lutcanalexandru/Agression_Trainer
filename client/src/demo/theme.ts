@@ -62,8 +62,9 @@ export function injectGlobalStyles(): void {
     const style = document.createElement("style");
     style.textContent = `
         @keyframes at-blink { 50% { opacity: 0; } }
-        .at-btn { cursor: pointer; transition: background-color 120ms, opacity 120ms; }
-        .at-btn:hover:not(:disabled) { background-color: rgba(238,238,204,0.08) !important; }
+        .at-btn { cursor: pointer; transition: outline-color 120ms, opacity 120ms; outline: 1px solid transparent; outline-offset: 3px; }
+        /* Hover: a slight outline in the border colour (#EEEECC at 80%); the background never changes. */
+        .at-btn:hover:not(:disabled) { outline-color: rgba(238,238,204,0.8); }
         .at-btn:disabled { cursor: not-allowed; opacity: 0.35; }
         .at-scroll { scrollbar-width: thin; scrollbar-color: rgba(238,238,204,0.4) transparent; }
         .at-scroll::-webkit-scrollbar { width: 6px; }

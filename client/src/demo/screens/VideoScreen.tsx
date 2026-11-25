@@ -22,7 +22,7 @@ import type { ClipData } from "@ar-training/shared";
 import { C } from "../theme.ts";
 import { abs, fitImage, text } from "../layout.ts";
 import { useTypewriter } from "../hooks.ts";
-import { AppHeader, Box, ConsoleButton, Cursor, Grid, Label, Marker, Screen, SessionFooter } from "../ui.tsx";
+import { Anchor, AppHeader, Box, ConsoleButton, Cursor, Grid, Label, Marker, Screen, SessionFooter } from "../ui.tsx";
 import { getFaceMedia } from "../faceVideos.ts";
 import type { FaceMediaInfo } from "../faceVideos.ts";
 import { getGifDurationMs } from "../gifDuration.ts";
@@ -63,39 +63,43 @@ export function VideoScreen({ clip, videoNumber, onRecord }: VideoScreenProps) {
 
             <Grid {...L.grid} />
 
-            {/* Video window */}
-            <Box {...L.window} border={4} color={C.cream60} style={{ overflow: "hidden" }}>
-                <FaceMedia key={playKey} face={face} onEnded={() => setEnded(true)} />
-            </Box>
-
-            {/* Rewind */}
-            <button
-                type="button" className="at-btn" aria-label="Replay video" title="Replay video"
-                onClick={() => setRewinding(true)}
-                style={{ ...abs(L.rewind.x, L.rewind.y, 137, 83), background: C.bg, border: `2px solid ${C.cream80}`, padding: 0 }}
-            >
-                <img src={rewindIcon} alt="" style={{
-                    position: "absolute", left: "calc(50% - 37px)", top: 3, width: 74, height: 74,
-                    objectFit: "cover", opacity: 0.8, transform: "scaleX(-1)",
-                }} />
-            </button>
+            {/* Video window + Rewind: exact Figma size, centred in the left area */}
+            <Anchor at={L.leftCenter}>
+                <Box {...L.window} border={4} color={C.cream60} style={{ overflow: "hidden" }}>
+                    <FaceMedia key={playKey} face={face} onEnded={() => setEnded(true)} />
+                </Box>
+                <button
+                    type="button" className="at-btn" aria-label="Replay video" title="Replay video"
+                    onClick={() => setRewinding(true)}
+                    style={{ ...abs(L.rewind.x, L.rewind.y, 137, 83), background: C.bg, border: `2px solid ${C.cream80}`, padding: 0 }}
+                >
+                    <img src={rewindIcon} alt="" style={{
+                        position: "absolute", left: 24, top: 3, width: 74, height: 74,
+                        objectFit: "cover", opacity: 0.8, transform: "scaleX(-1)",
+                    }} />
+                </button>
+            </Anchor>
 
             {/* Transcript */}
             {L.transcriptBars.map((b, i) => <Box key={i} {...b} border={1} color={C.cream60} />)}
-            <Marker x={L.transcriptTitleX} y={735} w={15} h={27} />
-            <Label x={L.transcriptTitleX + 19} y={735} size={24}>VIDEO TRANSCRIPT</Label>
+            <Anchor at={L.leftCenter}>
+                <Marker x={L.transcriptTitleX} y={735} w={15} h={27} />
+                <Label x={L.transcriptTitleX + 19} y={735} size={24}>VIDEO TRANSCRIPT</Label>
+            </Anchor>
             <Box {...L.transcriptBox} border={2} color={C.cream60} />
             <Marker x={20} y={L.transcriptTextY} w={13} h={32} color={C.cream80} />
             <Transcript key={playKey} text={face.transcript} x={L.transcriptTextX} y={L.transcriptTextY} w={L.transcriptTextW} size={L.transcriptSize} />
 
             {large ? <RequirementsPanel /> : <HudPanels />}
 
-            <ConsoleButton
-                {...L.record} w={354} h={87} label="RECORD ANSWER >"
-                marker={{ x: 25, w: 15, h: 35 }} labelX={64}
-                disabled={!ended} onClick={onRecord}
-                title={ended ? undefined : "Watch the video first"}
-            />
+            <Anchor at={L.recordAnchor}>
+                <ConsoleButton
+                    {...L.record} w={354} h={87} label="RECORD ANSWER >"
+                    marker={{ x: 25, w: 15, h: 35 }} labelX={64}
+                    disabled={!ended} onClick={onRecord}
+                    title={ended ? undefined : "Watch the video first"}
+                />
+            </Anchor>
 
             <SessionFooter />
         </Screen>
@@ -114,6 +118,8 @@ const LARGE = {
     transcriptBox: { x: 0, y: 775, w: 1023, h: 199 },
     transcriptTextX: 45, transcriptTextY: 835, transcriptTextW: 959, transcriptSize: 32,
     record: { x: 1058, y: 850 },
+    /** Centre of the left area (video window, transcript title) and of the right column (button). */
+    leftCenter: 512, recordAnchor: 1232,
 };
 
 const STANDARD = {
@@ -128,6 +134,7 @@ const STANDARD = {
     // narrower transcript box (approved).
     transcriptTextX: 41, transcriptTextY: 810, transcriptTextW: 683, transcriptSize: 24,
     record: { x: 1052, y: 850 },
+    leftCenter: 365, recordAnchor: 1223.5,
 };
 
 // ─── Pieces ───────────────────────────────────────────────────────────────────
@@ -207,7 +214,11 @@ function FaceMedia({ face, onEnded }: { face: FaceMediaInfo; onEnded: () => void
                     playing={talking}
                     onStart={startVoice}
                     onError={() => { setFailed(true); finish(); }}
-                    style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
+                    style={{
+                        width: "100%", height: "100%", objectFit: "contain", display: "block",
+                        // A bit bigger inside the window (the GIF has empty space around the face).
+                        transform: "scale(1.18)", transformOrigin: "50% 60%",
+                    }}
                 />
                 {face.audio && (
                     <audio ref={audioEl} src={face.audio} preload="auto" onEnded={finish} onError={finish} />
@@ -256,16 +267,19 @@ function RequirementsPanel() {
         <>
             <Box x={1024} y={88} w={416} h={80} border={1} color={C.cream80} />
             <Box x={1024} y={88} w={416} h={886} border={2} color={C.cream70} />
-            <Marker x={1045} y={111} w={15} h={35} />
-            <Label x={1077} y={110} size={32}>{"REQUIREMENTS >"}</Label>
-            <div style={{ ...abs(1045, 192, 361), display: "flex", flexDirection: "column", gap: 29 }}>
-                {items.map(t => (
-                    <div key={t} style={{ position: "relative", paddingLeft: 19 }}>
-                        <span style={{ position: "absolute", left: 0, top: 6, width: 7, height: 19, background: C.cream80 }} />
-                        <p style={{ ...text(24, C.cream), whiteSpace: "normal" }}>{t}</p>
-                    </div>
-                ))}
-            </div>
+            {/* Heading and list keep their Figma size, at the left of the column */}
+            <Anchor at={1024}>
+                <Marker x={1045} y={111} w={15} h={35} />
+                <Label x={1077} y={110} size={32}>{"REQUIREMENTS >"}</Label>
+                <div style={{ ...abs(1045, 192, 361), display: "flex", flexDirection: "column", gap: 29 }}>
+                    {items.map(t => (
+                        <div key={t} style={{ position: "relative", paddingLeft: 19 }}>
+                            <span style={{ position: "absolute", left: 0, top: 6, width: 7, height: 19, background: C.cream80 }} />
+                            <p style={{ ...text(24, C.cream), whiteSpace: "normal" }}>{t}</p>
+                        </div>
+                    ))}
+                </div>
+            </Anchor>
         </>
     );
 }
@@ -281,23 +295,34 @@ function HudPanels() {
             <Box x={1125} y={88} w={315} h={343} border={2} color={C.cream80} />
             <Box x={730} y={88} w={710} h={886} border={2} color={C.cream70} />
 
-            <Box x={750} y={131} w={353} h={273} border={1} color={C.cream} style={{ overflow: "hidden" }}>
-                <img src={hudTerrain} alt="" style={{ ...fitImage("cover"), opacity: 0.92 }} />
-            </Box>
-            <Box x={1146} y={131} w={273} h={273} border={1} color={C.cream} style={{ overflow: "hidden" }}>
-                <img src={hudSphere} alt="" style={fitImage("contain")} />
-            </Box>
+            {/* Images keep their Figma size and crop, centred in their panels */}
+            <Anchor at={927.5}>
+                <Box x={750} y={131} w={353} h={273} border={1} color={C.cream} style={{ overflow: "hidden" }}>
+                    <img src={hudTerrain} alt="" style={{ position: "absolute", left: "-27.13%", top: "0.11%", width: "151.47%", height: "108.57%", opacity: 0.92 }} />
+                </Box>
+            </Anchor>
+            <Anchor at={1282.5}>
+                <Box x={1146} y={131} w={273} h={273} border={1} color={C.cream} style={{ overflow: "hidden" }}>
+                    <img src={hudSphere} alt="" style={fitImage("cover")} />
+                </Box>
+            </Anchor>
 
-            <Marker x={771} y={449} w={15} h={27} />
-            <Label x={800} y={449} size={24}>VOLUME LEVELS</Label>
-            <Box x={743} y={512} w={683} h={186} border={1} color={C.cream} />
-            <div style={{ ...abs(750, 541, 656, 127), overflow: "hidden", opacity: 0.74 }}>
-                <img src={hudWaveform} alt="" style={{ position: "absolute", left: "-5.17%", top: "0.42%", width: "154.69%", height: "100%" }} />
-            </div>
+            <Anchor at={730}>
+                <Marker x={771} y={449} w={15} h={27} />
+                <Label x={800} y={449} size={24}>VOLUME LEVELS</Label>
+            </Anchor>
+            <Anchor at={1085}>
+                <Box x={743} y={512} w={683} h={186} border={1} color={C.cream} />
+                <div style={{ ...abs(750, 541, 656, 127), overflow: "hidden", opacity: 0.74 }}>
+                    <img src={hudWaveform} alt="" style={{ position: "absolute", left: "-5.17%", top: "0.42%", width: "154.69%", height: "100%" }} />
+                </div>
+            </Anchor>
 
-            <Marker x={751} y={734} w={15} h={30} />
-            <Label x={773} y={735} size={24}>CURRENT STATS:</Label>
-            {[bar(750, 796), bar(767, 796), bar(750, 840, 25), bar(767, 840, 25), bar(784, 840, 25), bar(750, 885), bar(750, 930)]}
+            <Anchor at={730}>
+                <Marker x={751} y={734} w={15} h={30} />
+                <Label x={773} y={735} size={24}>CURRENT STATS:</Label>
+                {[bar(750, 796), bar(767, 796), bar(750, 840, 25), bar(767, 840, 25), bar(784, 840, 25), bar(750, 885), bar(750, 930)]}
+            </Anchor>
         </>
     );
 }

@@ -15,8 +15,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { C } from "../theme.ts";
-import { abs, sxOff, text } from "../layout.ts";
-import { AppHeader, Box, ConsoleButton, Grid, Label, Marker, Screen, SessionFooter } from "../ui.tsx";
+import { abs, text } from "../layout.ts";
+import { Anchor, AppHeader, Box, ConsoleButton, Grid, Label, Marker, Screen, SessionFooter } from "../ui.tsx";
 import recPlay from "../assets/figma/rec-play.svg";
 import recBracket from "../assets/figma/rec-bracket.png";
 import recCamera from "../assets/figma/rec-camera.svg";
@@ -45,7 +45,8 @@ const TIPS = [
 ];
 
 /** Decorative mic-level bars in the "Device checks" strip (x 962 → 1013, as in Figma). */
-const AUDIO_BARS = [6, 10, 14, 18, 12, 20, 14, 8, 10, 6, 6];
+/** Mic-level icon in the "Device checks" strip: 13 bars, 3 px wide, 3 px apart (heights in px). */
+const AUDIO_BARS = [4, 8, 14, 20, 12, 24, 16, 24, 12, 20, 14, 8, 4];
 
 function formatTime(totalSeconds: number): string {
     const m = Math.floor(totalSeconds / 60);
@@ -134,67 +135,73 @@ export function RecordScreen({ stream, responseNumber, onSubmit }: RecordScreenP
             <Box x={33} y={144} w={994} h={649} border={2} color={C.cream80} bg={C.bg} style={{ borderRadius: 2 }} />
             <div style={{ ...abs(33, 144, 994, 24), background: C.bg, border: `2px solid ${C.cream80}`, borderBottomWidth: 1 }}>
                 <span style={{ ...abs(10, 4), ...text(11, C.cream80) }}>CAM FEED · LEARNER · LIVE</span>
-                <span style={{ ...abs(947, 4), ...text(11, C.white27) }}>▪▪▪</span>
+                <Anchor at={994}><span style={{ ...abs(947, 4), ...text(11, C.white27) }}>▪▪▪</span></Anchor>
             </div>
             <Box x={33} y={166} w={994} h={625} border={1} color={C.cream80} style={{ overflow: "hidden" }} />
             <Grid x={34} y={167} w={992} h={623} cellW={49.7} cellH={44.555} line={1} color={C.gridStrong} />
 
-            <Box x={107} y={225} w={837} h={503} border={4} color={C.cream60} bg={C.bg} style={{ overflow: "hidden" }}>
-                {reviewing && recordingUrl ? (
-                    <video
-                        key={recordingUrl}
-                        src={recordingUrl}
-                        autoPlay
-                        playsInline
-                        onEnded={() => setMode("idle")}
-                        style={mediaStyle}
-                    />
-                ) : stream ? (
-                    <video ref={liveEl} muted playsInline autoPlay style={mediaStyle} />
-                ) : (
-                    <img src={recCamera} alt="" width={124} height={124}
-                         style={{ position: "absolute", left: "calc(50% - 62px)", top: 168, width: 124, height: 124 }} />
-                )}
-            </Box>
-
-            {/* Corner brackets */}
-            {/* Corner brackets — exact size, anchored to the inner camera frame (x 107 → 944) */}
-            <img src={recBracket} alt="" style={{ ...bracket(sxOff(107, 23.4), 257), opacity: 0.7 }} />
-            <img src={recBracket} alt="" style={{ ...bracket(sxOff(944, -64.6), 257), opacity: 0.7, transform: "rotate(90deg)" }} />
-            <img src={recBracket} alt="" style={{ ...bracket(sxOff(107, 23.4), 658), opacity: 0.7, transform: "rotate(-90deg)" }} />
-            <img src={recBracket} alt="" style={{ ...bracket(sxOff(944, -64.6), 658), opacity: 0.7, transform: "rotate(180deg)" }} />
-
-            {/* Camera status (anchored to the inner frame's left edge) */}
-            <img src={recStatusDot} alt="" width={23} height={23}
-                 style={{
-                     position: "absolute", left: sxOff(107, 40), top: 272, width: 23, height: 23,
-                     animation: recording ? "at-blink 1s step-end infinite" : undefined, opacity: recording ? 1 : 0.45,
-                 }} />
-            <p style={{ position: "absolute", left: sxOff(107, 75), top: 272, ...text(20, C.cream80) }}>
-                {recorderUnavailable ? "REC · UNAVAILABLE" : `REC · ${formatTime(seconds)}`}
-            </p>
+            {/* Inner camera frame, brackets and REC status: exact Figma size, centred in the camera area */}
+            <Anchor at={530}>
+                <Box x={107} y={225} w={837} h={503} border={4} color={C.cream60} bg={C.bg} style={{ overflow: "hidden" }}>
+                    {reviewing && recordingUrl ? (
+                        <video
+                            key={recordingUrl}
+                            src={recordingUrl}
+                            autoPlay
+                            playsInline
+                            onEnded={() => setMode("idle")}
+                            style={mediaStyle}
+                        />
+                    ) : stream ? (
+                        <video ref={liveEl} muted playsInline autoPlay style={mediaStyle} />
+                    ) : (
+                        <img src={recCamera} alt="" width={124} height={124}
+                             style={{ position: "absolute", left: 352, top: 168, width: 124, height: 124 }} />
+                    )}
+                </Box>
+                <img src={recBracket} alt="" style={{ ...abs(130.4, 257, 50.2, 50.2), opacity: 0.7 }} />
+                <img src={recBracket} alt="" style={{ ...abs(879.4, 257, 50.2, 50.2), opacity: 0.7, transform: "rotate(90deg)" }} />
+                <img src={recBracket} alt="" style={{ ...abs(130.4, 658, 50.2, 50.2), opacity: 0.7, transform: "rotate(-90deg)" }} />
+                <img src={recBracket} alt="" style={{ ...abs(879.4, 658, 50.2, 50.2), opacity: 0.7, transform: "rotate(180deg)" }} />
+                <img src={recStatusDot} alt="" width={23} height={23}
+                     style={{
+                         ...abs(147, 272, 23, 23),
+                         animation: recording ? "at-blink 1s step-end infinite" : undefined, opacity: recording ? 1 : 0.45,
+                     }} />
+                <Label x={182} y={272} size={20} color={C.cream80}>
+                    {recorderUnavailable ? "REC · UNAVAILABLE" : `REC · ${formatTime(seconds)}`}
+                </Label>
+            </Anchor>
 
             {/* Device checks */}
             <Box x={33} y={811} w={994} h={65} border={2} color={C.cream80} bg={C.bg} />
-            <Label x={49} y={823} size={13} color={C.red}>◎</Label>
-            <Label x={63} y={819} size={20} color={C.cream80}>CAM ON</Label>
-            <div style={{ ...abs(143, 823, 1, 14), background: C.white20 }} />
-            <Label x={152} y={823} size={13} color={C.red}>♦</Label>
-            <Label x={165} y={820} size={20} color={C.cream80}>MIC ON</Label>
-            <div style={{ ...abs(962, 823, 52, 30), display: "flex", gap: 0.7, alignItems: "center" }}>
-                {AUDIO_BARS.map((h, i) => (
-                    <span key={i} style={{
-                        width: 4, height: h, borderRadius: 2, flex: "none",
-                        background: i > 8 ? "rgba(238,238,204,0.4)" : i > 6 ? C.cream60 : C.cream80,
-                    }} />
-                ))}
-            </div>
+            <Anchor at={33}>
+                <Label x={49} y={823} size={13} color={C.red}>◎</Label>
+                <Label x={63} y={819} size={20} color={C.cream80}>CAM ON</Label>
+                <div style={{ ...abs(143, 823, 1, 14), background: C.white20 }} />
+                <Label x={152} y={823} size={13} color={C.red}>♦</Label>
+                <Label x={165} y={820} size={20} color={C.cream80}>MIC ON</Label>
+            </Anchor>
+            {/* Mic-level icon: crisp bars at exact size, kept at the strip's right end */}
+            <Anchor at={1027}>
+                <div style={{ ...abs(934, 829, 75, 30), display: "flex", gap: 3, alignItems: "center" }}>
+                    {AUDIO_BARS.map((h, i) => (
+                        <span key={i} style={{
+                            width: 3, height: h, borderRadius: 1.5, flex: "none",
+                            background: i > 10 ? "rgba(238,238,204,0.4)" : i > 8 ? C.cream60 : C.cream80,
+                        }} />
+                    ))}
+                </div>
+            </Anchor>
 
             {/* ── Guidance column ────────────────────────────────────────── */}
             <Box x={1059} y={120} w={378} h={733} border={2} color={C.cream80} bg={C.bg} />
             <Box x={1059} y={120} w={378} h={50} border={2} color={C.cream80} />
-            <Marker x={1089} y={135} w={9} h={21} />
-            <Label x={1131} y={131} size={24} color={C.cream80}>RECORD YOUR RESPONSE</Label>
+            <Anchor at={1248}>
+                <Marker x={1089} y={135} w={9} h={21} />
+                <Label x={1131} y={131} size={24} color={C.cream80}>RECORD YOUR RESPONSE</Label>
+            </Anchor>
+            <Anchor at={1059}>
             <div style={{ ...abs(1074, 191, 357), display: "flex", flexDirection: "column", gap: 0 }}>
                 {GUIDANCE.map(g => (
                     <div key={g} style={{ position: "relative", paddingLeft: 15 }}>
@@ -204,10 +211,15 @@ export function RecordScreen({ stream, responseNumber, onSubmit }: RecordScreenP
                 ))}
             </div>
 
+            </Anchor>
+
             <Box x={1059} y={355} w={378} h={50} border={2} color={C.cream80} />
-            <Marker x={1131} y={369} w={9} h={21} />
-            <Label x={1183} y={367} size={24} color={C.cream80}>TIPS LIST</Label>
+            <Anchor at={1248}>
+                <Marker x={1131} y={369} w={9} h={21} />
+                <Label x={1183} y={367} size={24} color={C.cream80}>TIPS LIST</Label>
+            </Anchor>
             <div style={{ ...abs(1081, 448, 334, 1), background: "rgba(105,15,35,0.27)" }} />
+            <Anchor at={1059}>
             <div style={{ ...abs(1072, 441, 359), display: "flex", flexDirection: "column", gap: 34 }}>
                 {TIPS.map(t => (
                     <div key={t} style={{ display: "flex", gap: 9, alignItems: "flex-start" }}>
@@ -216,7 +228,10 @@ export function RecordScreen({ stream, responseNumber, onSubmit }: RecordScreenP
                     </div>
                 ))}
             </div>
+            </Anchor>
 
+            {/* Controls: exact size; recording buttons at the left, Submit centred under the column */}
+            <Anchor at={33}>
             {/* ── Controls ───────────────────────────────────────────────── */}
             <button
                 type="button" className="at-btn"
@@ -244,22 +259,21 @@ export function RecordScreen({ stream, responseNumber, onSubmit }: RecordScreenP
             >
                 <span style={text(16, C.cream80)}>{reviewing ? "STOP REVIEW" : "REVIEW RESPONSE"}</span>
             </button>
+            </Anchor>
 
-            <ConsoleButton
-                x={1113} y={872} w={236} h={60} label="Submit >" bg={C.bg}
-                marker={{ x: 15.5, w: 13.68, h: 31.919 }}
-                disabled={!canSubmit} onClick={handleSubmit}
-                title={canSubmit ? undefined : "Record your response first"}
-            />
+            <Anchor at={1248}>
+                <ConsoleButton
+                    x={1113} y={872} w={236} h={60} label="Submit >" bg={C.bg}
+                    marker={{ x: 15.5, w: 13.68, h: 31.919 }}
+                    disabled={!canSubmit} onClick={handleSubmit}
+                    title={canSubmit ? undefined : "Record your response first"}
+                />
+            </Anchor>
 
             <SessionFooter />
         </Screen>
     );
 }
-
-const bracket = (left: string, top: number): React.CSSProperties => ({
-    position: "absolute", left, top, width: 50.2, height: 50.2,
-});
 
 const mediaStyle: React.CSSProperties = {
     width: "100%", height: "100%", objectFit: "cover", display: "block", transform: "scaleX(-1)",

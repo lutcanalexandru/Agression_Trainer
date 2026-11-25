@@ -7,7 +7,7 @@ import { useState } from "react";
 import { C } from "../theme.ts";
 import { abs, sxOff, text } from "../layout.ts";
 import { useTypewriter } from "../hooks.ts";
-import { AppHeader, Box, ConsoleButton, Cursor, Grid, Marker, Screen, SessionFooter } from "../ui.tsx";
+import { Anchor, AppHeader, Box, ConsoleButton, Cursor, Grid, Marker, Screen, SessionFooter } from "../ui.tsx";
 import homeFace from "../assets/figma/home-face.png";
 import popupWarning from "../assets/figma/popup-warning.png";
 import popupBarLeft from "../assets/figma/popup-bar-left.svg";
@@ -39,7 +39,8 @@ export function HomeScreen({ onAccept, initialPopupOpen = false }: HomeScreenPro
         <Screen outer>
             <AppHeader status="INITIALIZING..." statusMarkerX={1080} statusTextX={1106} statusY={45} statusColor={C.white} />
 
-            {/* Headline */}
+            {/* Headline + introduction: exact Figma size, centred in the left half */}
+            <Anchor at={400}>
             <Marker x={54} y={163} w={17} h={41} />
             <p style={{
                 ...abs(87, 160.5, 659), ...text(46, C.cream), lineHeight: 1.1, letterSpacing: -0.92,
@@ -54,17 +55,22 @@ export function HomeScreen({ onAccept, initialPopupOpen = false }: HomeScreenPro
                 {intro}
                 <Cursor w={9} h={22} />
             </p>
+            </Anchor>
 
-            {/* Encounter preview: pixel face under the grid */}
-            <div style={{ ...abs(800, 143, 560, 410), overflow: "hidden" }}>
-                <img src={homeFace} alt="" style={{ position: "absolute", left: "calc(50% - 138.5px)", top: -4, width: 277, height: 410, objectFit: "cover" }} />
-            </div>
-            <Grid x={800} y={143} w={560} h={410} cellW={28} cellH={29.228} line={1} color={C.grid} />
-            <Box x={800} y={143} w={560} h={410} border={2} color={C.cream90} />
+            {/* Encounter preview (pixel face under the grid): exact size, centred in the right half */}
+            <Anchor at={1080}>
+                <div style={{ ...abs(800, 143, 560, 410), overflow: "hidden" }}>
+                    <img src={homeFace} alt="" style={{ position: "absolute", left: 141.5, top: -4, width: 277, height: 410, objectFit: "cover" }} />
+                </div>
+                <Grid x={800} y={143} w={560} h={410} cellW={28} cellH={29.228} line={1} color={C.grid} />
+                <Box x={800} y={143} w={560} h={410} border={2} color={C.cream90} />
+            </Anchor>
 
             {/* Process cards */}
+            {/* Each card keeps its Figma size; the cards spread evenly across the width */}
             {STEPS.map((s, i) => (
-                <div key={s.n} style={{
+                <Anchor key={s.n} at={288 + i * 432}>
+                <div style={{
                     ...abs(80 + i * 432, 599, 416, i === 0 ? 198 : 200), background: C.bg,
                     border: `1px solid ${C.cream}`, boxShadow: "inset 0px 0px 12px 0px rgba(62,23,69,0.3)",
                 }}>
@@ -81,16 +87,20 @@ export function HomeScreen({ onAccept, initialPopupOpen = false }: HomeScreenPro
                         {s.body}
                     </p>
                 </div>
+                </Anchor>
             ))}
 
-            <ConsoleButton
-                x={501} y={854} w={416} h={74} label="BEGIN SIMULATION" fontSize={36}
-                marker={{ x: 32, w: 18, h: 37 }} labelX={69} onClick={() => setPopupOpen(true)}
-            />
+            <Anchor at={709}>
+                <ConsoleButton
+                    x={501} y={854} w={416} h={74} label="BEGIN SIMULATION" fontSize={36}
+                    marker={{ x: 32, w: 18, h: 37 }} labelX={69} onClick={() => setPopupOpen(true)}
+                />
+            </Anchor>
 
             <SessionFooter />
 
-            {popupOpen && <CameraPopup onCancel={() => setPopupOpen(false)} onAccept={onAccept} />}
+            {/* The popup keeps its exact Figma size, centred on the page */}
+            {popupOpen && <Anchor at={720}><CameraPopup onCancel={() => setPopupOpen(false)} onAccept={onAccept} /></Anchor>}
         </Screen>
     );
 }

@@ -12,9 +12,9 @@
 // =============================================================================
 
 import { C } from "../theme.ts";
-import { abs, text } from "../layout.ts";
+import { abs, insetX, text } from "../layout.ts";
 import {
-    AppHeader, Box, ConsoleButton, FingerprintPanel, Grid, Label, Marker, Screen, SessionFooter, TypedParagraphs,
+    Anchor, AppHeader, Box, ConsoleButton, FingerprintPanel, Grid, Label, Marker, Screen, SessionFooter, TypedParagraphs,
 } from "../ui.tsx";
 import { CRITERIA } from "../resultsData.ts";
 
@@ -31,6 +31,8 @@ const COLUMNS = [
     { x: 410, w: 88 },
     { x: 588, w: 88 },
 ];
+/** Centre of each column's slot: the chart box (x 13 → 711) split by dividers at 183, 365, 548. */
+const SLOT_CENTERS = [98, 274, 456.5, 629.5];
 const COL_Y = 188;
 const COL_H = 492;
 const CELL_H = (COL_H - 4) / 10;
@@ -51,53 +53,76 @@ export function ResultsScreen({ breakdown, onDetails }: ResultsScreenProps) {
 
             {/* ── Chart ──────────────────────────────────────────────────── */}
             <Box x={0} y={88} w={732} h={54} border={2} color={C.cream60} />
-            <Marker x={238} y={102} w={15} h={27} />
-            <Label x={267} y={101} size={24}>Your Results Chart:</Label>
-            <Label x={588} y={108} size={16} color={C.sysRed}>[SAMPLE DATA]</Label>
+            {/* Section titles stay centred in their bar; the tag stays at the bar's right end */}
+            <Anchor at={366}>
+                <Marker x={238} y={102} w={15} h={27} />
+                <Label x={267} y={101} size={24}>Your Results Chart:</Label>
+            </Anchor>
+            <Anchor at={732}>
+                <Label x={588} y={108} size={16} color={C.sysRed}>[SAMPLE DATA]</Label>
+            </Anchor>
 
             <Grid x={0} y={166} w={730} h={555} cellW={36.5} cellH={39.564} line={2} color={C.gridFaint} />
             <Box x={13} y={158} w={698} h={536} border={4} color={C.cream60} />
             {[183, 365, 548].map(x => <div key={x} style={{ ...abs(x - 1, 161, 2, 533), background: C.cream60 }} />)}
 
+            {/* Each column keeps its Figma size, centred in its slot between the dividers */}
             {COLUMNS.map((col, i) => (
-                <ChartColumn key={i} x={col.x} w={col.w} level={CRITERIA[i]?.score ?? 0} />
+                <Anchor key={i} at={SLOT_CENTERS[i]}>
+                    <ChartColumn x={col.x} w={col.w} level={CRITERIA[i]?.score ?? 0} />
+                </Anchor>
             ))}
 
             {/* ── Raw stats (SAMPLE DATA) ────────────────────────────────── */}
             <Box x={0} y={721} w={730} h={57} border={2} color={C.cream80} />
-            <Marker x={201} y={735} w={15} h={27} />
-            <Label x={230} y={734} size={24}>Raw Stats Performance:</Label>
-            <Label x={588} y={741} size={16} color={C.sysRed}>[SAMPLE DATA]</Label>
+            <Anchor at={365}>
+                <Marker x={201} y={735} w={15} h={27} />
+                <Label x={230} y={734} size={24}>Raw Stats Performance:</Label>
+            </Anchor>
+            <Anchor at={730}>
+                <Label x={588} y={741} size={16} color={C.sysRed}>[SAMPLE DATA]</Label>
+            </Anchor>
             {CRITERIA.map((c, i) => {
                 const x = [0, 183, 365, 548][i];
                 return (
                     <div key={c.short}>
                         <Box x={x} y={775} w={i === 1 ? 182 : 183} h={199} border={1} color={C.cream60} />
-                        <Marker x={x + 7} y={796} w={11} h={22} />
-                        <Label x={[25, 206, 392, 572][i]} y={795} size={20}>{c.short}:</Label>
-                        <Label x={[48, 230, 413, 596][i]} y={863} size={40}>{`${c.score}/10`}</Label>
+                        {/* Name at the cell's left edge, score centred in the cell */}
+                        <Anchor at={x}>
+                            <Marker x={x + 7} y={796} w={11} h={22} />
+                            <Label x={[25, 206, 392, 572][i]} y={795} size={20}>{c.short}:</Label>
+                        </Anchor>
+                        <Anchor at={x + 91.5}>
+                            <Label x={[48, 230, 413, 596][i]} y={863} size={40}>{`${c.score}/10`}</Label>
+                        </Anchor>
                     </div>
                 );
             })}
 
             {/* ── Final result breakdown (AI debrief) ────────────────────── */}
             <Box x={730} y={88} w={710} h={54} border={2} color={C.cream60} />
-            <Marker x={926} y={102} w={15} h={27} />
-            <Label x={955} y={101} size={24}>Final Result Breakdown:</Label>
+            <Anchor at={1085}>
+                <Marker x={926} y={102} w={15} h={27} />
+                <Label x={955} y={101} size={24}>Final Result Breakdown:</Label>
+            </Anchor>
             <Box x={730} y={88} w={710} h={886} border={2} color={C.cream70} />
-            <div className="at-scroll" style={{ ...abs(765, 192, 660, 515), overflowY: "auto", paddingLeft: 21 }}>
+            <div className="at-scroll" style={{ position: "absolute", top: 192, height: 515, ...insetX(730, 1440, 35, 15), overflowY: "auto", paddingLeft: 21, boxSizing: "border-box" }}>
                 <TypedParagraphs paragraphs={breakdown} size={24} markerW={11} markerH={29} gap={30} />
             </div>
 
             {/* ── Details call-to-action ─────────────────────────────────── */}
             <Box x={731} y={721} w={709} h={57} border={2} color={C.cream80} />
-            <Marker x={750} y={735} w={15} h={27} />
-            <p style={{ ...abs(779, 734, 641), ...text(26, C.cream) }}>Review the details about your performance.</p>
+            <Anchor at={731}>
+                <Marker x={750} y={735} w={15} h={27} />
+                <p style={{ ...abs(779, 734, 641), ...text(26, C.cream) }}>Review the details about your performance.</p>
+            </Anchor>
             <FingerprintPanel />
-            <ConsoleButton
-                x={1055} y={840} w={300} h={74} label="GET DETAILS >"
-                marker={{ x: 18, w: 15, h: 35 }} labelX={52} onClick={onDetails}
-            />
+            <Anchor at={1440}>
+                <ConsoleButton
+                    x={1055} y={840} w={300} h={74} label="GET DETAILS >"
+                    marker={{ x: 18, w: 15, h: 35 }} labelX={52} onClick={onDetails}
+                />
+            </Anchor>
 
             <SessionFooter />
         </Screen>

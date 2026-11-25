@@ -7,7 +7,7 @@
 
 import type { CSSProperties, ReactNode } from "react";
 import { C, FONT } from "./theme.ts";
-import { abs, absFixed, fitImage, sxOff, text } from "./layout.ts";
+import { abs, absFixed, fitImage, text } from "./layout.ts";
 import { useTypewriter } from "./hooks.ts";
 import logoAudioLines from "./assets/figma/logo-audio-lines.svg";
 import fingerprintImg from "./assets/figma/fingerprint.png";
@@ -24,6 +24,28 @@ export function Screen({ children, outer = false }: { children: ReactNode; outer
         <div style={{ position: "absolute", inset: 0, background: C.bg, overflow: "hidden", fontFamily: FONT }}>
             {outer && <div style={{ ...abs(0, 0, 1440, 1024), border: `3px solid ${C.cream80}`, pointerEvents: "none" }} />}
             {children}
+        </div>
+    );
+}
+
+// ─── Anchored groups ──────────────────────────────────────────────────────────
+
+/**
+ * Keeps its children at their exact Figma size and spacing (no horizontal
+ * stretch) and moves the whole group with the stretched layout so that the
+ * Figma x-coordinate `at` stays aligned. Use the left edge, centre or right
+ * edge of the panel a group belongs to:
+ *   <Anchor at={0}>    → stays at the left edge
+ *   <Anchor at={720}>  → stays centred on the page
+ *   <Anchor at={1440}> → stays at the right edge
+ * Children use normal Figma coordinates.
+ */
+export function Anchor({ at: a, children }: { at: number; children: ReactNode }) {
+    return (
+        <div style={{ position: "absolute", left: `calc(${a}px * var(--kx, 1) - ${a}px)`, top: 0, width: 0, height: 0 }}>
+            <div style={{ position: "absolute", left: 0, top: 0, width: 0, height: 0, "--kx": "1" } as CSSProperties}>
+                {children}
+            </div>
         </div>
     );
 }
@@ -138,17 +160,16 @@ export function ConsoleButton({
 /** "<BACK" button (Figma "Back Button"). Only used on the Details pages. */
 export function BackButton({ onClick }: { onClick: () => void }) {
     return (
-        <ConsoleButton
-            x={0} y={88} w={146} h={52} label="<BACK" onClick={onClick}
-            border={2} bg={C.bg} marker={{ x: 11, w: 13, h: 21 }} labelX={35}
-        />
+        <Anchor at={0}>
+            <ConsoleButton
+                x={0} y={88} w={146} h={52} label="<BACK" onClick={onClick}
+                border={2} bg={C.bg} marker={{ x: 11, w: 13, h: 21 }} labelX={35}
+            />
+        </Anchor>
     );
 }
 
 // ─── Header / footer ──────────────────────────────────────────────────────────
-
-/** Absolute position from a precomputed CSS left value. */
-const at = (left: string, top: number): CSSProperties => ({ position: "absolute", left, top });
 
 interface HeaderProps {
     /** "large" = Page 1 / Camera Record header (32 px title), "small" = all other screens. */
@@ -169,28 +190,31 @@ export function AppHeader({
     return (
         <>
             <div style={{ ...abs(0, 0, 1440, 88), background: C.bg, borderBottom: `1px solid ${C.white20}` }}>
-                {/* Brand mark */}
-                <div style={{ ...absFixed(30, 26, 36, 36), background: C.redBrand, border: `1px solid ${C.cream}` }}>
-                    <img src={logoAudioLines} alt="" width={23} height={23} style={{ position: "absolute", left: 5, top: 5, width: 23, height: 23 }} />
-                </div>
-                {/* Identity group keeps its exact internal spacing (anchored at x 30) */}
-                {large ? (
-                    <>
-                        <p style={{ ...at(sxOff(30, 49), 25), ...text(32) }}>AGGRESSION TRAINER</p>
-                        <div style={{ ...at(sxOff(30, 298), 33), width: 1, height: 22, background: C.white20 }} />
-                        <div style={{ ...at(sxOff(30, 373), 29), width: 5, height: 28, background: "rgba(238,238,204,0.81)" }} />
-                        <p style={{ ...at(sxOff(30, 391), 33), ...text(20, C.white60) }}>DE-ESCALATION PROTOCOL</p>
-                    </>
-                ) : (
-                    <>
-                        <p style={{ ...at(sxOff(30, 50), 30.5), ...text(24) }}>AGGRESSION TRAINER</p>
-                        <div style={{ ...at(sxOff(30, 298), 30), width: 5, height: 28, background: "rgba(238,238,204,0.81)" }} />
-                        <p style={{ ...at(sxOff(30, 315), 32), ...text(20, C.white60) }}>DE-ESCALATION PROTOCOL</p>
-                    </>
-                )}
-                {/* Status: marker + text keep their exact gap */}
-                <Marker x={statusMarkerX} y={statusY} w={15} h={39} />
-                <p style={{ ...at(sxOff(statusMarkerX, statusTextX - statusMarkerX), statusY), ...text(statusSize, statusColor) }}>{status}</p>
+                {/* Identity group: exact Figma size and spacing, kept at the left edge */}
+                <Anchor at={0}>
+                    <div style={{ ...abs(30, 26, 36, 36), background: C.redBrand, border: `1px solid ${C.cream}` }}>
+                        <img src={logoAudioLines} alt="" width={23} height={23} style={{ position: "absolute", left: 5, top: 5, width: 23, height: 23 }} />
+                    </div>
+                    {large ? (
+                        <>
+                            <Label x={79} y={25} size={32}>AGGRESSION TRAINER</Label>
+                            <div style={{ ...abs(328, 33, 1, 22), background: C.white20 }} />
+                            <Marker x={403} y={29} w={5} h={28} color="rgba(238,238,204,0.81)" />
+                            <Label x={421} y={33} size={20} color={C.white60}>DE-ESCALATION PROTOCOL</Label>
+                        </>
+                    ) : (
+                        <>
+                            <Label x={80} y={30.5} size={24}>AGGRESSION TRAINER</Label>
+                            <Marker x={328} y={30} w={5} h={28} color="rgba(238,238,204,0.81)" />
+                            <Label x={345} y={32} size={20} color={C.white60}>DE-ESCALATION PROTOCOL</Label>
+                        </>
+                    )}
+                </Anchor>
+                {/* Status (e.g. "VIDEO: 1"): exact size, kept at the right edge as in Figma */}
+                <Anchor at={1440}>
+                    <Marker x={statusMarkerX} y={statusY} w={15} h={39} />
+                    <Label x={statusTextX} y={statusY} size={statusSize} color={statusColor}>{status}</Label>
+                </Anchor>
             </div>
             <div style={{ ...abs(0, 0, 1440, 88), border: `2px solid ${C.cream80}`, pointerEvents: "none" }} />
         </>
@@ -200,39 +224,39 @@ export function AppHeader({
 export function SessionFooter() {
     return (
         <div style={{ ...abs(0, 974, 1440, 50), background: C.bg, border: `1px solid ${C.footerLine}` }}>
-            <Label x={79} y={15} size={16} color={C.white60}>▸ PRACTICE AT YOUR OWN PACE. YOU CANNOT PAUSE NOR LEAVE.</Label>
-            <div style={{ ...abs(947, 15), display: "flex", gap: 16, alignItems: "center" }}>
-                <span style={text(16, C.sysRed)}>SYS:OK</span>
-                <span style={{ width: 1, height: 12, background: C.white13 }} />
-                <span style={text(16, C.white40)}>ILLUSTRATIVE TRAINING EXPERIENCE v2.0</span>
-            </div>
+            <Anchor at={0}>
+                <Label x={79} y={15} size={16} color={C.white60}>▸ PRACTICE AT YOUR OWN PACE. YOU CANNOT PAUSE NOR LEAVE.</Label>
+            </Anchor>
+            <Anchor at={1440}>
+                <div style={{ ...abs(947, 15), display: "flex", gap: 16, alignItems: "center", whiteSpace: "nowrap" }}>
+                    <span style={text(16, C.sysRed)}>SYS:OK</span>
+                    <span style={{ width: 1, height: 12, background: C.white13 }} />
+                    <span style={text(16, C.white40)}>ILLUSTRATIVE TRAINING EXPERIENCE v2.0</span>
+                </div>
+            </Anchor>
         </div>
     );
 }
 
 // ─── Fingerprint panel (Results / Details, bottom right) ──────────────────────
 
+/** Fingerprint box at the exact Figma size, kept at the left of the bottom-right panel (x 730). */
 export function FingerprintPanel() {
-    // Corners hug the (stretched) box edges: box spans x 769 → 958 in Figma.
-    const corner = (src: string, side: "left" | "right", y: number, rotate: number) => (
+    const corner = (src: string, x: number, y: number, rotate: number) => (
         <img src={src} alt="" width={15} height={15}
-             style={{
-                 position: "absolute", top: y, width: 15, height: 15,
-                 left: side === "left" ? sxOff(769, 9) : sxOff(958, -23),
-                 transform: rotate ? `rotate(${rotate}deg)` : undefined,
-             }} />
+             style={{ ...abs(x, y, 15, 15), transform: rotate ? `rotate(${rotate}deg)` : undefined }} />
     );
     return (
-        <>
+        <Anchor at={730}>
             <Box x={769} y={795} w={189} h={160} color={C.cream} />
-            <div style={{ ...abs(769, 809, 189, 134), opacity: 0.8 }}>
+            <div style={{ ...abs(818, 809, 92, 134), opacity: 0.8 }}>
                 <img src={fingerprintImg} alt="" style={fitImage("contain")} />
             </div>
-            {corner(fpCornerTr, "right", 804, 0)}
-            {corner(fpCornerBr, "right", 932, 90)}
-            {corner(fpCornerTl, "left", 804, -90)}
-            {corner(fpCornerBl, "left", 932, 180)}
-        </>
+            {corner(fpCornerTr, 935, 804, 0)}
+            {corner(fpCornerBr, 935, 932, 90)}
+            {corner(fpCornerTl, 778, 804, -90)}
+            {corner(fpCornerBl, 778, 932, 180)}
+        </Anchor>
     );
 }
 

@@ -17,7 +17,7 @@ import { useState } from "react";
 import { C } from "../theme.ts";
 import { abs, text } from "../layout.ts";
 import { useProgress, useTypewriter } from "../hooks.ts";
-import { ConsoleButton, Cursor } from "../ui.tsx";
+import { Anchor, ConsoleButton, Cursor } from "../ui.tsx";
 import { LoadingFrame } from "../LoadingFrame.tsx";
 
 /** Boot sequence step length: 5 steps ≈ 2.5 s. */
@@ -88,10 +88,12 @@ export function StatusScreen({ title, lines, buttonLabel, onButton }: StatusScre
                 ))}
             </div>
             {buttonLabel && onButton && (
-                <ConsoleButton
-                    x={721 - 129.5} y={730} w={259} h={66} label={buttonLabel} onClick={onButton}
-                    border={2} bg={C.bg} fontSize={32} labelColor={C.white} marker={{ x: 17, w: 15, h: 35 }}
-                />
+                <Anchor at={721}>
+                    <ConsoleButton
+                        x={721 - 129.5} y={730} w={259} h={66} label={buttonLabel} onClick={onButton}
+                        border={2} bg={C.bg} fontSize={32} labelColor={C.white} marker={{ x: 17, w: 15, h: 35 }}
+                    />
+                </Anchor>
             )}
         </LoadingFrame>
     );

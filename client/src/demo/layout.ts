@@ -24,6 +24,17 @@ export function sxOff(v: number, offsetPx: number): string {
     return `calc(${v}px * var(--kx, 1) + ${offsetPx}px)`;
 }
 
+/**
+ * A text area that fills a stretched panel (Figma x0 → x1) with exact pixel
+ * insets on both sides, so the text keeps the Figma margin to the panel edge.
+ */
+export function insetX(x0: number, x1: number, padLeft: number, padRight: number): CSSProperties {
+    return {
+        left: sxOff(x0, padLeft),
+        width: `calc(${x1 - x0}px * var(--kx, 1) - ${padLeft + padRight}px)`,
+    };
+}
+
 /** Absolute position and optional size; x and width stretch horizontally. */
 export function abs(x: number, y: number, w?: number, h?: number): CSSProperties {
     return {
